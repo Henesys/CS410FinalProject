@@ -26,7 +26,7 @@ def process_lyrics(lyrics):
     Input("query_artist", "value"),
     Input("submit_artist", "n_clicks"),
 )
-def get_lyrics(query_artist, n_clicks):
+def get_image(query_artist, n_clicks):
     if n_clicks == 0:
         return None
 
