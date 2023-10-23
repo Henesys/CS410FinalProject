@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 # Dash
 import dash
 from dash import Dash
@@ -30,8 +32,10 @@ from io import BytesIO
 # Initialize Spotify API
 # Credentials | localhost:8888/callback
 # Might need to export + echo @ bash
-CLIENT_ID = "b15c3df4e7ca45ce90842a6f53c7aab5"
-CLIENT_SECRET = "1adde56dad574412a57f93f987279d6d"
+
+# CLIENT_SECRET HAS BEEN ROTATED, STORE @ GITIGNORE
+# CLIENT_ID = "X"
+# CLIENT_SECRET = "X"
 
 client_credentials_manager = SpotifyClientCredentials(
     client_id=CLIENT_ID, client_secret=CLIENT_SECRET
