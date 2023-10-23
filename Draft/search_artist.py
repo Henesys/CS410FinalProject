@@ -15,7 +15,7 @@ from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
 
 
-genius = Genius("irpjON-Z1GSt9nz-xhFe-wtKAuFnjrYZ4jP1-9uK6yOQ1dafktyUZzZIQmuGPVkD")
+#genius = Genius("irpjON-Z1GSt9nz-xhFe-wtKAuFnjrYZ4jP1-9uK6yOQ1dafktyUZzZIQmuGPVkD")
 genius.remove_section_headers = True
 top_song_num = 10
 stop_words = set(stopwords.words('english'))
