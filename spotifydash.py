@@ -18,13 +18,13 @@ app.layout = html.Div([
                     #Search Artist's name
                     html.H4(children= "Enter Artist's name Below"),
                     dbc.Row([
-                        html.Div(["Name: ", dcc.Input(id='Artist_name', value='Taylor Swift', type='text')])
+                        html.Div(["Name: ", dcc.Input(id='artist_name', value='Enter Here', type='text')])
                     ], align='right'),
                     html.Br(),
                     html.Div(["Analysis"]),
                     html.Br(),
                     dash_table.DataTable(
-                                columns = [{'name':'Artist Name','id':'name'}, {'name':'song','id':'sname'}, 
+                                columns = [{'name':'Artist Image','id':'image'}, {'name':'song','id':'sname'}, 
                                         {'name':'analysis','id':'any'}],
                                 id='faculty_university_table',
                                 fixed_rows={'headers': True},
@@ -42,3 +42,11 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+'''
+@callback(
+    #Output(#artist data)
+    #input(artist_name)
+)
+def 
+'''
