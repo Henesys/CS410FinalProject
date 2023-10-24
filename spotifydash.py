@@ -40,13 +40,18 @@ app.layout = html.Div([
     )
 ], style={'padding': 100, 'border': 'solid'})
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
 
 '''
 @callback(
-    #Output(#artist data)
+    #Output
     #input(artist_name)
 )
-def 
+def update_table(input_keyword, n_result):
+    if not input_keyword:
+        return dash.no_update
+    result = #analysis result
+    return result
 '''
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
