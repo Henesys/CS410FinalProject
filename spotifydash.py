@@ -2,6 +2,10 @@ import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import dash_bootstrap_components as dbc
 
+from PIL import Image
+
+
+
 #app = dash.Dash(__name__)
 app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
@@ -18,7 +22,7 @@ app.layout = html.Div([
                     #Search Artist's name
                     html.H4(children= "Enter Artist's name Below"),
                     dbc.Row([
-                        html.Div(["Name: ", dcc.Input(id='artist_name', value='Enter Here', type='text')])
+                        html.Div(["Name: ", dcc.Input(id='artist_name', value='Enter Here', type='text'), html.Button('Submit', id='submit_artist', n_clicks=0)])
                     ], align='right'),
                     html.Br(),
                     html.Div(["Analysis"]),
