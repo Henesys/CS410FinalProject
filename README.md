@@ -6,9 +6,9 @@
 - Chang Hun Park
 - Hyo Sup Kim
 
-## Project Overview:
+## Project Proposal:
 
--
+- [Overview](https://github.com/Henesys/CS410FinalProject/blob/main/Proposal.pdf)
 
 ## Project Demo:
 
@@ -18,8 +18,8 @@
 
 | Deliverable           | Deadline      | Status |
 | --------------------- | ------------- | ------ |
-| Team Formation        | October 15th  | O      |
-| Project Proposal      | October 22nd  | X      |
+| Team Formation        | October 27th  | O      |
+| Project Proposal      | October 27th  | O      |
 | Progress Report       | November 19th | X      |
 | Code                  | December 15th | X      |
 | Documentation         | December 15th | X      |
