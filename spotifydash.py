@@ -1,15 +1,13 @@
 #connecting genius & spotify
-import search_artist #from Marcia
+from draft.search_artist import * #from Marcia
 
 #Dash
-import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import base64
-from PIL import Image
 #import os
 from PIL import Image
 
