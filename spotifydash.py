@@ -20,7 +20,7 @@ app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
 
 
-image_path = 'C:\창훈\CS410FP\CS410FinalProject\Draft'
+image_path = 'C:\changhun\UIUC\CS410\CS410FinalProject\Draft'
 
 app.layout = html.Div([
     dbc.Card(dbc.Row(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'})), body=True),
