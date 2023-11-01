@@ -2,6 +2,12 @@
 
 import os
 
+# Credentials
+import credentials
+
+client_id = credentials.CLIENT_ID
+client_secret = credentials.CLIENT_SECRET
+
 # Dash
 import dash
 from dash import Dash
