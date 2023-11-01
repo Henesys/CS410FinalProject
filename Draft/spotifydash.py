@@ -4,22 +4,17 @@
 #Dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import base64
-import os
 from PIL import Image
 from textblob import TextBlob
 
-
 import app
+image_path = "Draft\\sample_TaylorSwift_WordCloud.png"
+pil_img = Image.open(image_path)
 
 app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
-
-
-image_path = r'C:\changhun\UIUC\CS410\CS410FinalProject\Draft'
 
 app.layout = html.Div([
     dbc.Card(dbc.Row(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'})), body=True),
@@ -35,8 +30,7 @@ app.layout = html.Div([
                         html.Div(["Name: ", dcc.Input(id='query_artist', value='Enter Here', type='text'), html.Button('Submit', id='submit_artist', n_clicks=0)])
                     ], align='right'),
                     html.Br(),
-
-                    html.Img(src=image_path),
+                    html.Img(src=pil_img),
                     html.Br(),
                     html.H4(children ="wordcloud"),
                     dash_table.DataTable(
