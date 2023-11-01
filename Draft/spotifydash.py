@@ -33,10 +33,9 @@ app.layout = html.Div([
                     html.H4(children ="wordcloud"),
                     html.Img(id='word_cloud', src=pil_img),
                     html.Br(),
-                    dash_table.DataTable(
+                    dash_table.DataTable(id='table'
                                 columns = [{'name':'Artist Image','id':'image'}, {'name':'song','id':'sname'}, 
                                         {'name':'analysis','id':'any'}],
-                                id='faculty_university_table',
                                 fixed_rows={'headers': True},
                                 style_table={'overflowY':'auto'},
                                 style_data={'height':'auto','minWidth':'140px','width':'140px','maxWidth':'200px',
@@ -66,21 +65,18 @@ def get_word_cloud(query_artist,  n_clicks):
     img_wordcloud = word_cloud(lyrics)
     return img_wordcloud
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
-
-"""
 @callback(
-    #Output
-    #input(artist_name)
+    Output("table", "data"),
+    Input("query_artist", "value"),
+    Input("submit_artist", "n_clicks"),
 )
-
-
-
-def update_table(input_keyword, n_result):
-    if not input_keyword:
+def update_table(input_keyword, n_clicks):
+    if n_clicks == 0:
         return dash.no_update
     result = #analysis result
     return result
-"""
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
 
