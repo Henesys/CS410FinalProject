@@ -21,6 +21,7 @@ from autocorrect import Speller
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 spell = Speller(lang='en')
 #genius = Genius(ACCESS_TOKEN)
@@ -119,6 +120,119 @@ def word_cloud(lyrics):
     im  = Image.open('word_cloud.png')
     return im
 
+"""
+Generates Song Subjectivity Distribution
+"""
+def get_song_subjectivity(subjectivities):
+    values, counts = np.unique(subjectivities, return_counts=True)
+    # Draw dot plot with appropriate figure size, marker size and y-axis limits
+    fig, ax = plt.subplots(figsize=(8, 4))
+    colors = ['#00BFFF', '#3591FF', '#6964FF', '#9E36FF', '#D208FF']
+
+    for value, count in zip(values, counts):
+        ax.plot([value]*count, list(range(count)), 'co', c=colors[value - 1], ms=int(200 / max(counts)), linestyle='')
+
+    for spine in ['top', 'right', 'left']:
+        ax.spines[spine].set_visible(False)
+
+    ax.yaxis.set_visible(False)
+    ax.set_ylim(-0.75, max(counts))
+    ax.set_xticks(range(1, 6))
+    ax.set_xticklabels(['Mostly Objective', '', 'Somewhat Subjective', '', 'Very Subjective'])
+    ax.tick_params(axis='x', length=0, pad=8, labelsize=18)
+    ax.set_title('Song Subjectivity Distribution', fontsize=18)
+
+    plt.savefig('subjectivities_dist.png')
+
+    img_subjectivities  = Image.open('subjectivities_dist.png')
+
+    return img_subjectivities
+
+"""
+Generates Song Polarity Distribution
+"""
+def get_song_polarity(polarities):
+    values, counts = np.unique(polarities, return_counts=True)
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    colors = ['#FF0000', '#E32A01', '#C65502', '#AA8004', '#8EAA05', '#71D506', '#55FF07']
+
+    for value, count in zip(values, counts):
+        ax.plot([value]*count, list(range(count)), 'co', c=colors[value + 3], ms=int(200 / max(counts)), linestyle='')
+
+    for spine in ['top', 'right', 'left']:
+        ax.spines[spine].set_visible(False)
+
+    ax.yaxis.set_visible(False)
+    ax.set_ylim(-0.75, max(counts))
+    ax.set_xticks(range(-3, 4))
+    ax.set_xticklabels(['---', '--', '-', 'o', '+', '++', '+++'])
+    ax.tick_params(axis='x', length=0, pad=8, labelsize=18)
+    ax.set_title('Song Polarity Distribution', fontsize=18)
+
+    plt.savefig('polarities_dist.png')
+
+    img_polarities  = Image.open('polarities_dist.png')
+
+    polarity_value = sum(values * counts)
+    polarity_verdict = 'are Neutral'
+
+    if polarity_value < -15:
+        polarity_verdict = 'are Negative'
+    elif polarity_value < 0:
+        polarity_verdict = 'lean Negative'
+    elif polarity_value > 15:
+        polarity_verdict = 'are Positive'
+    elif polarity_value > 0:
+        polarity_verdict = 'lean Positive'
+
+    print("This artist's song lyrics " + polarity_verdict + ".")
+
+    return img_polarities
+
+"""
+Generates Song Sentiment Distribution
+"""
+def get_song_sentiments(all_songs):
+    polarities = []
+    subjectivities = []
+    for song in all_songs:
+        blob = TextBlob(song)
+        song_polarity = blob.sentiment.polarity
+        song_subjectivity = blob.sentiment.subjectivity
+        #polarities.append(song_polarity)
+        #print(blob.tags)
+        #print(blob.noun_phrases)
+        #print(blob.sentiment)
+
+        if song_polarity < -0.50:
+            polarities.append(-3)
+        elif song_polarity < -0.25:
+            polarities.append(-2)
+        elif song_polarity < -0.05:
+            polarities.append(-1)
+        elif song_polarity <  0.05:
+            polarities.append(0)
+        elif song_polarity <  0.25:
+            polarities.append(1)
+        elif song_polarity <  0.50:
+            polarities.append(2)
+        else:
+            polarities.append(3)
+
+        if song_subjectivity < 0.3:
+            subjectivities.append(1)
+        elif song_subjectivity < 0.4:
+            subjectivities.append(2)
+        elif song_subjectivity < 0.6:
+            subjectivities.append(3)
+        elif song_subjectivity <  0.7:
+            subjectivities.append(4)
+        else:
+            subjectivities.append(5)
+
+    return get_song_polarity(polarities), get_song_subjectivity(subjectivities)
+
 @callback(
     Output("query_artist_lyrics", "src"),
     Input("query_artist", "value"),
@@ -155,23 +269,20 @@ def get_lyrics(query_artist, n_clicks):
             lyrics = process_lyrics(song.lyrics)
             song_lyrics.append(lyrics)
 
-            if len(song_lyrics) >= 10:
-                break
+            #if len(song_lyrics) >= 15:
+            #    break
 
     all_songs = [' '.join(lyric) for lyric in song_lyrics]
     all_lyrics = ' '.join(all_songs)
 
+    print(all_songs)
     print(all_lyrics)
 
-    im = word_cloud(all_lyrics)
+    img_wordcloud = word_cloud(all_lyrics)
 
-    for song in all_songs:
-        blob = TextBlob(song)
-        print(blob.tags)
-        print(blob.noun_phrases)
-        print(blob.sentiment)
+    img_polarities, img_subjectivities = get_song_sentiments(all_songs)
 
-    return im
+    return img_subjectivities
 
 if __name__ == '__main__':
     app.run_server(debug=True)
