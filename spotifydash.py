@@ -1,5 +1,5 @@
 #connecting genius & spotify
-from draft.search_artist import * #from Marcia
+#from Draft.search_artist import * #from Marcia
 
 #Dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
@@ -19,7 +19,7 @@ app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
 
 
-image_path = 'C:\changhun\UIUC\CS410\CS410FinalProject\Draft'
+image_path = r'C:\changhun\UIUC\CS410\CS410FinalProject\Draft'
 
 app.layout = html.Div([
     dbc.Card(dbc.Row(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'})), body=True),
@@ -39,7 +39,6 @@ app.layout = html.Div([
                     html.Img(src=image_path),
                     html.Br(),
                     html.H4(children ="wordcloud"),
-                    html.Img(src=image_path)
                     dash_table.DataTable(
                                 columns = [{'name':'Artist Image','id':'image'}, {'name':'song','id':'sname'}, 
                                         {'name':'analysis','id':'any'}],
