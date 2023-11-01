@@ -10,6 +10,7 @@ from dash.dependencies import Input, Output, State
 import base64
 #import os
 from PIL import Image
+from textblob import TextBlob
 
 
 import app
@@ -37,7 +38,7 @@ app.layout = html.Div([
 
                     html.Img(src=image_path),
                     html.Br(),
-                    html.H4(children ="worcloud")
+                    html.H4(children ="wordcloud"),
                     html.Img(src=image_path)
                     dash_table.DataTable(
                                 columns = [{'name':'Artist Image','id':'image'}, {'name':'song','id':'sname'}, 
