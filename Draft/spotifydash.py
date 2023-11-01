@@ -1,5 +1,5 @@
 #connecting genius & spotify
-#from Draft.search_artist import * #from Marcia
+from search_artist import word_cloud, get_lyrics
 
 #Dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
@@ -30,9 +30,9 @@ app.layout = html.Div([
                         html.Div(["Name: ", dcc.Input(id='query_artist', value='Enter Here', type='text'), html.Button('Submit', id='submit_artist', n_clicks=0)])
                     ], align='right'),
                     html.Br(),
-                    html.Img(src=pil_img),
-                    html.Br(),
                     html.H4(children ="wordcloud"),
+                    html.Img(id='word_cloud', src=pil_img),
+                    html.Br(),
                     dash_table.DataTable(
                                 columns = [{'name':'Artist Image','id':'image'}, {'name':'song','id':'sname'}, 
                                         {'name':'analysis','id':'any'}],
@@ -54,7 +54,22 @@ app.layout = html.Div([
 #Assume search_artist has the function that process the image & analysis.
 #
 
-""""
+@callback(
+    Output("word_cloud", "src"),
+    Input("query_artist", "value"),
+    Input("submit_artist", "n_clicks"),
+)
+def get_word_cloud(query_artist,  n_clicks):
+    if n_clicks == 0:
+        return None
+    lyrics = get_lyrics(query_artist)
+    img_wordcloud = word_cloud(lyrics)
+    return img_wordcloud
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
+"""
 @callback(
     #Output
     #input(artist_name)
@@ -69,5 +84,3 @@ def update_table(input_keyword, n_result):
     return result
 """
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
