@@ -2,3 +2,4 @@
 Spotify/credentials.py
 Spotify/.cache
 Draft/credentials.py
+.DS_Store
