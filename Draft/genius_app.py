@@ -27,14 +27,14 @@ app.layout = html.Div(
     [Input("query_artist", "value"),
     Input("submit_artist", "n_clicks")]
 )
-def get_lyrics(query_artist, n_clicks):
+def process(query_artist, n_clicks):
     if n_clicks == 0:
         return None, None, None, None, None
 
     n_clicks = 0
 
     # generates word_cloud.png, polarities_dist.png, subjectivities_dist.png
-    all_songs, img_wordcloud, img_polarities, img_subjectivities, polarity_verdict = search_artist.get_lyrics(query_artist)
+    all_songs, img_wordcloud, img_polarities, img_subjectivities, polarity_verdict = search_artist.process_artist_lyrics(query_artist)
 
     return all_songs, img_wordcloud, img_polarities, img_subjectivities, polarity_verdict
 
