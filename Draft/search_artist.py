@@ -164,20 +164,22 @@ def get_song_polarity(polarities):
     img_polarities  = Image.open('polarities_dist.png')
 
     polarity_value = sum(values * counts)
-    polarity_verdict = 'are Neutral'
+    polarity_verdict = 'o'
 
-    if polarity_value < -15:
-        polarity_verdict = 'are Negative'
+    if polarity_value < -30:
+        polarity_verdict = '---'
+    elif polarity_value < -15:
+        polarity_verdict = '--'
     elif polarity_value < 0:
-        polarity_verdict = 'lean Negative'
+        polarity_verdict = '-'
+    elif polarity_value > 30:
+        polarity_verdict = '+++'
     elif polarity_value > 15:
-        polarity_verdict = 'are Positive'
+        polarity_verdict = '++'
     elif polarity_value > 0:
-        polarity_verdict = 'lean Positive'
+        polarity_verdict = '+' 
 
-    print("This artist's song lyrics " + polarity_verdict + ".")
-
-    return img_polarities
+    return img_polarities, polarity_verdict
 
 """
 Generates Song Sentiment Distribution
@@ -220,7 +222,8 @@ def get_song_sentiments(all_songs):
         else:
             subjectivities.append(5)
 
-    return get_song_polarity(polarities), get_song_subjectivity(subjectivities)
+    img_polarities, polarity_verdict = get_song_polarity(polarities)
+    return img_polarities, polarity_verdict, get_song_subjectivity(subjectivities)
 
 def get_lyrics(query_artist):
     test_count = 0
@@ -256,6 +259,6 @@ def get_lyrics(query_artist):
 
     img_wordcloud = word_cloud(all_lyrics)
 
-    img_polarities, img_subjectivities = get_song_sentiments(all_songs)
+    img_polarities, polarity_verdict, img_subjectivities = get_song_sentiments(all_songs)
 
-    return all_songs, img_wordcloud, img_polarities, img_subjectivities
+    return all_songs, img_wordcloud, img_polarities, img_subjectivities, polarity_verdict
