@@ -2,9 +2,6 @@ import re
 import requests
 from io import BytesIO
 
-import dash
-from dash import Dash, dcc, html, Input, Output, callback
-
 from lyricsgenius import Genius
 from PIL import Image
 from textblob import TextBlob
@@ -23,21 +20,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+import credentials
+
 spell = Speller(lang='en')
-#genius = Genius(ACCESS_TOKEN)
+genius = Genius(credentials.ACCESS_TOKEN)
 genius.remove_section_headers = True
 top_song_num = 10
 stop_words = set(stopwords.words('english'))
-
-app = dash.Dash(__name__)
-app.layout = html.Div(
-    [
-        html.Div(dcc.Input(id='query_artist', type='text', placeholder="Insert Artist Name", debounce=True, minLength=1)),
-        html.Button('Submit', id='submit_artist', n_clicks=0),
-        html.Br(),
-        html.Img(id="query_artist_lyrics"),
-    ]
-)
 
 """
 Checks if Song Name that is about to be added is already in the Song List.
@@ -233,17 +222,7 @@ def get_song_sentiments(all_songs):
 
     return get_song_polarity(polarities), get_song_subjectivity(subjectivities)
 
-@callback(
-    Output("query_artist_lyrics", "src"),
-    Input("query_artist", "value"),
-    Input("submit_artist", "n_clicks"),
-)
-def get_lyrics(query_artist, n_clicks):
-    if n_clicks == 0:
-        return None
-
-    n_clicks = 0
-
+def get_lyrics(query_artist):
     test_count = 0
     while True:
         try:
@@ -269,9 +248,6 @@ def get_lyrics(query_artist, n_clicks):
             lyrics = process_lyrics(song.lyrics)
             song_lyrics.append(lyrics)
 
-            #if len(song_lyrics) >= 15:
-            #    break
-
     all_songs = [' '.join(lyric) for lyric in song_lyrics]
     all_lyrics = ' '.join(all_songs)
 
@@ -282,7 +258,4 @@ def get_lyrics(query_artist, n_clicks):
 
     img_polarities, img_subjectivities = get_song_sentiments(all_songs)
 
-    return img_subjectivities
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
+    return all_songs, img_wordcloud, img_polarities, img_subjectivities
