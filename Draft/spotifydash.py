@@ -10,6 +10,7 @@ from PIL import Image
 from textblob import TextBlob
 
 import app
+spt_img = Image.open("Draft\\spotify.png")
 image_path = "Draft\\sample_TaylorSwift_WordCloud.png"
 pil_img = Image.open(image_path)
 
@@ -17,7 +18,7 @@ app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
 
 app.layout = html.Div([
-    dbc.Card(dbc.Row(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'})), body=True),
+    dbc.Card(dbc.Row(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'}), html.Img(src=spt_img)), body=True),
     html.Br(),
 
     dbc.Card(
@@ -25,16 +26,18 @@ app.layout = html.Div([
             dbc.Row([
                 html.Div([
                     #Search Artist's name
+    
                     html.H4(children= "Enter Artist's name Below"),
                     dbc.Row([
-                        html.Div(["Name: ", dcc.Input(id='query_artist', value='Enter Here', type='text'), html.Button('Submit', id='submit_artist', n_clicks=0)])
+                        html.Div([html.Img(src=pil_img), "Name: ", dcc.Input(id='query_artist', value='Taylor Swift', type='text'), html.Button('Submit', id='submit_artist', n_clicks=0)])
                     ], align='right'),
                     html.Br(),
                     html.H4(children ="wordcloud"),
-                    html.Img(id='word_cloud', src=pil_img),
+                    html.Img(src=pil_img),
+                    #html.Img(id='word_cloud', src=pil_img),
                     html.Br(),
-                    dash_table.DataTable(id='table'
-                                columns = [{'name':'Artist Image','id':'image'}, {'name':'song','id':'sname'}, 
+                    dash_table.DataTable(id='table',
+                                columns = [{'name':'Artist Image','id':'image'}, 
                                         {'name':'analysis','id':'any'}],
                                 fixed_rows={'headers': True},
                                 style_table={'overflowY':'auto'},
@@ -53,6 +56,7 @@ app.layout = html.Div([
 #Assume search_artist has the function that process the image & analysis.
 #
 
+"""
 @callback(
     Output("word_cloud", "src"),
     Input("query_artist", "value"),
@@ -65,6 +69,7 @@ def get_word_cloud(query_artist,  n_clicks):
     img_wordcloud = word_cloud(lyrics)
     return img_wordcloud
 
+#
 @callback(
     Output("table", "data"),
     Input("query_artist", "value"),
@@ -75,6 +80,7 @@ def update_table(input_keyword, n_clicks):
         return dash.no_update
     result = #analysis result
     return result
+"""
 
 if __name__ == '__main__':
     app.run_server(debug=True)
