@@ -2,9 +2,6 @@ import re
 import requests
 from io import BytesIO
 
-import dash
-from dash import Dash, dcc, html, Input, Output, callback
-
 from lyricsgenius import Genius
 from PIL import Image
 from textblob import TextBlob
@@ -23,21 +20,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+import credentials
+
 spell = Speller(lang='en')
-#genius = Genius(ACCESS_TOKEN)
+genius = Genius(credentials.ACCESS_TOKEN, retries=5)
 genius.remove_section_headers = True
 top_song_num = 10
 stop_words = set(stopwords.words('english'))
-
-app = dash.Dash(__name__)
-app.layout = html.Div(
-    [
-        html.Div(dcc.Input(id='query_artist', type='text', placeholder="Insert Artist Name", debounce=True, minLength=1)),
-        html.Button('Submit', id='submit_artist', n_clicks=0),
-        html.Br(),
-        html.Img(id="query_artist_lyrics"),
-    ]
-)
 
 """
 Checks if Song Name that is about to be added is already in the Song List.
@@ -58,14 +47,11 @@ def process_lyrics(lyrics):
     lyrics_lines = lyrics.split("Lyrics", 1)[1].strip()
     if len(lyrics_lines) < 1:
         lyrics_lines = lyrics
-
     lyrics_lines = re.sub(r'[^\w\d\s\'\-]+', '', lyrics_lines)
     lyric_tokens = lyrics_lines.split()
-
     filtered_lyrics = []
     for w in lyric_tokens:
         new_w = (contractions.fix(w)).lower()
-
         # if there are #s in the word, consider it neutral and skip
         if bool(re.search(r'\d', new_w)):
             continue
@@ -85,7 +71,6 @@ def process_lyrics(lyrics):
             continue
 
         filtered_lyrics.append(new_w)
-
     return filtered_lyrics
 
 """
@@ -175,20 +160,22 @@ def get_song_polarity(polarities):
     img_polarities  = Image.open('polarities_dist.png')
 
     polarity_value = sum(values * counts)
-    polarity_verdict = 'are Neutral'
+    polarity_verdict = 'o'
 
-    if polarity_value < -15:
-        polarity_verdict = 'are Negative'
+    if polarity_value < -30:
+        polarity_verdict = '---'
+    elif polarity_value < -15:
+        polarity_verdict = '--'
     elif polarity_value < 0:
-        polarity_verdict = 'lean Negative'
+        polarity_verdict = '-'
+    elif polarity_value > 30:
+        polarity_verdict = '+++'
     elif polarity_value > 15:
-        polarity_verdict = 'are Positive'
+        polarity_verdict = '++'
     elif polarity_value > 0:
-        polarity_verdict = 'lean Positive'
+        polarity_verdict = '+' 
 
-    print("This artist's song lyrics " + polarity_verdict + ".")
-
-    return img_polarities
+    return img_polarities, polarity_verdict
 
 """
 Generates Song Sentiment Distribution
@@ -231,58 +218,91 @@ def get_song_sentiments(all_songs):
         else:
             subjectivities.append(5)
 
-    return get_song_polarity(polarities), get_song_subjectivity(subjectivities)
+    img_polarities, polarity_verdict = get_song_polarity(polarities)
+    return img_polarities, polarity_verdict, get_song_subjectivity(subjectivities)
 
-@callback(
-    Output("query_artist_lyrics", "src"),
-    Input("query_artist", "value"),
-    Input("submit_artist", "n_clicks"),
-)
-def get_lyrics(query_artist, n_clicks):
-    if n_clicks == 0:
-        return None
+"""
+Save a searched artist
+"""
+def save_artist(artist_name, song_titles, all_songs):
+    regex = re.compile('[^a-zA-Z]')
+    artist_entry = regex.sub('', artist_name).lower()
 
-    n_clicks = 0
+    with open("../ArtistLyrics/artists.txt", 'a') as f:
+        f.write(artist_entry + "\n")
 
-    test_count = 0
-    while True:
+    with open('../ArtistLyrics/' + artist_entry + "_titles.txt", 'w') as f:
+        f.write("\n".join(map(str, song_titles)))
+    
+    with open('../ArtistLyrics/' + artist_entry + "_lyrics.txt", 'w') as f:
+        f.write("\n".join(map(str, all_songs)))
+
+    return
+
+"""
+Check if artist lyrics were already processed
+"""
+def check_artist(query_artist):
+    with open('../ArtistLyrics/artists.txt') as f:
+        artists = f.read().splitlines()
+    
+    regex = re.compile('[^a-zA-Z]')
+    artist_entry = regex.sub('', query_artist).lower()
+
+    if artist_entry in artists:
+        return artist_entry
+
+    return False
+
+"""
+Get Artist Lyrics
+"""
+def get_lyrics(query_artist):
+    artist_exists = check_artist(query_artist)
+
+    if artist_exists:
+        print("exists!")
+        with open('../ArtistLyrics/' + artist_exists + '_titles.txt') as f:
+            song_titles = f.read().splitlines()
+        
+        with open('../ArtistLyrics/' + artist_exists + '_lyrics.txt') as f:
+            all_songs = f.read().splitlines()
+    else:
+        print("doesn't exist!")
         try:
             artist = genius.search_artist(query_artist, max_songs=20, sort='popularity') #max_songs set for testing efficiency
-            break
         except requests.exceptions.Timeout:
-            print ("genius execution failed, trying again")
-            test_count += 1
+            print ("genius execution failed, please rerun program")
+            sys.out(1)
 
-            if test_count > 5:
-                print ("genius execution failed, please rerun program")
-                sys.out(1)
+        song_list = artist.songs
 
-    song_list = artist.songs
+        song_titles = []
+        song_lyrics = []
+        for song in song_list:
+            is_new, song_title = check_repeat(song_titles, song.title)
+            if is_new:
+                song_titles.append(song_title)
+                lyrics = process_lyrics(song.lyrics)
+                song_lyrics.append(lyrics)
 
-    song_titles = []
-    song_lyrics = []
-    for song in song_list:
-        is_new, song_title = check_repeat(song_titles, song.title)
-        if is_new:
-            song_titles.append(song_title)
+        all_songs = [' '.join(lyric) for lyric in song_lyrics]
 
-            lyrics = process_lyrics(song.lyrics)
-            song_lyrics.append(lyrics)
+        save_artist(artist.name, song_titles, all_songs)
 
-            #if len(song_lyrics) >= 15:
-            #    break
-
-    all_songs = [' '.join(lyric) for lyric in song_lyrics]
     all_lyrics = ' '.join(all_songs)
+    #print(song_titles)
+    #print(all_lyrics)
 
-    print(all_songs)
-    print(all_lyrics)
+    return all_songs, all_lyrics
+
+"""
+Get Genius Lyrics Analysis of Artist Lyrics
+"""
+def process_artist_lyrics(query_artist):
+    all_songs, all_lyrics = get_lyrics(query_artist)
 
     img_wordcloud = word_cloud(all_lyrics)
+    img_polarities, polarity_verdict, img_subjectivities = get_song_sentiments(all_songs)
 
-    img_polarities, img_subjectivities = get_song_sentiments(all_songs)
-
-    return img_subjectivities
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
+    return all_songs, img_wordcloud, img_polarities, img_subjectivities, polarity_verdict
