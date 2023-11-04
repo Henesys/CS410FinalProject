@@ -1,5 +1,5 @@
 #connecting genius & spotify
-from search_artist import word_cloud, get_lyrics
+#from search_artist import word_cloud, get_lyrics
 
 #Dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
@@ -14,11 +14,13 @@ spt_img = Image.open("Draft\\spotify.png")
 image_path = "Draft\\sample_TaylorSwift_WordCloud.png"
 pil_img = Image.open(image_path)
 
+artist_name_list_path = ""
+
 app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
 
 app.layout = html.Div([
-    dbc.Card(dbc.Row(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'}), html.Img(src=spt_img)), body=True),
+    dbc.Card(dbc.Row([html.Img(src=spt_img, style={'height':'7%', 'width':'7%'}), dbc.Col(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'})),  html.Img(src=spt_img, style={'height':'7%', 'width':'7%'})])),
     html.Br(),
 
     dbc.Card(
@@ -81,6 +83,9 @@ def update_table(input_keyword, n_clicks):
     result = #analysis result
     return result
 """
+
+def pre_run(query_artist):
+    
 
 if __name__ == '__main__':
     app.run_server(debug=True)
