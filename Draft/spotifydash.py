@@ -14,7 +14,7 @@ spt_img = Image.open("Draft\\spotify.png")
 image_path = "Draft\\sample_TaylorSwift_WordCloud.png"
 pil_img = Image.open(image_path)
 
-artist_name_list_path = ""
+list = lines_list = open("ArtistLyrics//artists.txt" ).read().splitlines()
 
 app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
