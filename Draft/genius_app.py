@@ -5,66 +5,63 @@ from dash.dependencies import Input, Output, State
 import base64
 import search_artist
 from PIL import Image
+import time
 
-"""
-app = dash.Dash(__name__)
-app.layout = html.Div(
-    [
-        html.Div(dcc.Input(id='query_artist', type='text', placeholder="Insert Artist Name", debounce=True, minLength=1)),
-        html.Button('Submit', id='submit_artist', n_clicks=0),
-        html.Br(),
-        html.Div(id="polarity_verdict"),
-        html.Img(id="word_cloud"),
-        html.Img(id="polarities_dist"),
-        html.Img(id="subjectivities_dist"),
-        html.Div(id="query_artist_lyrics"),
-    ]
-)
-"""
-app = Dash(external_stylesheets=[dbc.themes.UNITED])
+app = app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = 'rgb(121, 41, 82)'
 spt_img = Image.open("spotify.png")
 
-app.layout = html.Div([
-    dbc.Card(dbc.Row([html.Img(src=spt_img, style={'height':'7%', 'width':'7%'}), dbc.Col(html.H1(children='Spotify Dashboard', style={'textAlign':'center', 'color': 'green'})),  html.Img(src=spt_img, style={'height':'7%', 'width':'7%'})])),
-    html.Br(),
+artist_input = html.Div(
+    [
+        dbc.Label("Enter Artist's Name Below", html_for="query_artist"),
+        dbc.Input(type="text", id="query_artist", placeholder="Enter Artist Name", style={"width": "50%", "text-align":"center"}),
+        dbc.Col(dbc.Button("Search", color="primary", id='submit_artist', n_clicks=0, style={"width": "50%"}), width="auto"),
+        html.Br(),
+        dbc.Spinner(html.Div(id="loading_output"), color="success", spinner_style={"width": "3rem", "height": "3rem"}),
+    ],
+    className="mb-3",
+)
 
-    dbc.Card(
-        dbc.CardBody([
-            dbc.Row([
-                html.Div([
-                    #Search Artist's name
-    
-                    html.H4(children="Enter Artist's name Below"),
-                    dbc.Row([
-                        html.Div([html.Img(src=spt_img, style={'height':'7%', 'width':'7%'}), "Name: ", dcc.Input(id='query_artist', type='text', placeholder="Insert Artist Name", debounce=True, minLength=1), html.Button('Submit', id='submit_artist', n_clicks=0)])
-                    ], align='right'),
-                    html.Br(),
-                    html.H4(children="wordcloud"),
-                    html.Img(src="word_cloud"),
-                    html.Div(id="polarity_verdict"),
-                    html.Div(id="themes"),
-                    html.Img(id="word_cloud"),
-                    html.Img(id="polarities_dist"),
-                    html.Img(id="subjectivities_dist"),
-                    html.Div(id="subjectivity_rating"),
-                    html.Div(id="query_artist_lyrics"),
-                    html.Br(),
-                    dash_table.DataTable(id='table',
-                                columns = [{'name':'Artist Image','id':'image'}, 
-                                        {'name':'analysis','id':'any'}],
-                                fixed_rows={'headers': True},
-                                style_table={'overflowY':'auto'},
-                                style_data={'height':'auto','minWidth':'140px','width':'140px','maxWidth':'200px',
-                                            'color':default_color,'border':'1px solid {}'.format(default_color)},
-                                style_cell_conditional=[{'if': {'column_id':'uname'}, 'width':'150%'}],
-                                style_header={'backgroundColor':default_color,'color':'green'}
-                    )
-                ])
-            ])
-        ])
-    )
-], style={'padding': 100, 'border': 'solid'})
+form = dbc.Form([artist_input])
+
+accordion = html.Div(
+    dbc.Accordion(
+        [
+            dbc.AccordionItem(
+                dbc.Card([
+                html.Div(id="polarity_verdict"),
+                html.Div(id="themes"),
+                html.Div(id="subjectivity_rating"),
+                html.Img(id="word_cloud", style={'height':'auto', 'width':'50%'}),
+                html.Img(id="polarities_dist"),
+                html.Img(id="subjectivities_dist")
+                ]), title="Lyrical Analysis"
+            ),
+            dbc.AccordionItem(
+                "This is the content of the second section", 
+                title="Musical Analysis"
+            ),
+        ],
+        flush=True,
+        id='element-to-hide',
+        start_collapsed=True,
+    ),
+)
+
+
+app.layout = html.Div(
+    [
+        dbc.Card(dbc.Row([html.Img(src=spt_img, style={'height':'64px', 'width':'auto'}), 
+                        dbc.Col(html.H1(children='Artist Dashboard', style={'textAlign':'center', 'color': "green", 'vertical-align':'center'})),  
+                        html.Img(src=spt_img, style={'height':'64px', 'width':'auto'})])),
+        html.Br(),
+        html.Center(form),
+        html.H2(id="query_artist_lyrics", style={'textAlign':'center', 'vertical-align':'center'}),
+        html.Br(),
+        html.Center(accordion),
+    ]
+    , style={'padding': 50}
+)
 
 
 @callback([
@@ -74,21 +71,24 @@ app.layout = html.Div([
     Output("polarities_dist", "src"),           # PIL image
     Output("subjectivities_dist", "src"),       # PIL image
     Output("subjectivity_rating", "children"),  # 3.5 (one decimal)
-    Output("polarity_verdict", "children")      # '---', '--', '-', 'o', '+', '++', '+++'
+    Output("polarity_verdict", "children"),      # '---', '--', '-', 'o', '+', '++', '+++'
+    Output("loading_output", "children"),
+    Output("element-to-hide", component_property='style')
     ],
     [Input("query_artist", "value"),
     Input("submit_artist", "n_clicks")]
 )
 def process(query_artist, n_clicks):
     if n_clicks == 0:
-        return None, None, None, None, None, None, None
+        return None, None, None, None, None, None, None, None, {'display': 'none'}
 
     n_clicks = 0
 
     # generates word_cloud.png, polarities_dist.png, subjectivities_dist.png
     all_songs, themes, img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict = search_artist.process_artist_lyrics(query_artist)
 
-    return all_songs, themes, img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict
+    return "Artist Analysis Breakdown", themes, img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict, None, {'display': 'block'}
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
