@@ -19,6 +19,14 @@ from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import gensim
+from gensim.utils import simple_preprocess
+import gensim.corpora as corpora
+from gensim.parsing.preprocessing import preprocess_string, strip_punctuation, strip_numeric
+
+import spacy
+from sklearn.linear_model import LogisticRegression
+nlp = spacy.load("en_core_web_md")
 
 import credentials
 
@@ -112,7 +120,7 @@ def get_song_subjectivity(subjectivities):
     values, counts = np.unique(subjectivities, return_counts=True)
     # Draw dot plot with appropriate figure size, marker size and y-axis limits
     fig, ax = plt.subplots(figsize=(8, 4))
-    colors = ['#00BFFF', '#3591FF', '#6964FF', '#9E36FF', '#D208FF']
+    colors = ['#00BFFF', '#3591FF', '#6964FF', '#9E36FF', '#D208FF', '#00BFFF', '#3591FF', '#6964FF', '#9E36FF', '#D208FF']
 
     for value, count in zip(values, counts):
         ax.plot([value]*count, list(range(count)), 'co', c=colors[value - 1], ms=int(200 / max(counts)), linestyle='')
@@ -122,8 +130,8 @@ def get_song_subjectivity(subjectivities):
 
     ax.yaxis.set_visible(False)
     ax.set_ylim(-0.75, max(counts))
-    ax.set_xticks(range(1, 6))
-    ax.set_xticklabels(['Mostly Objective', '', 'Somewhat Subjective', '', 'Very Subjective'])
+    ax.set_xticks(range(1, 11))
+    ax.set_xticklabels(['Objective', '', '', '', '', '', '', '', '', 'Subjective'])
     ax.tick_params(axis='x', length=0, pad=8, labelsize=18)
     ax.set_title('Song Subjectivity Distribution', fontsize=18)
 
@@ -131,7 +139,9 @@ def get_song_subjectivity(subjectivities):
 
     img_subjectivities  = Image.open('subjectivities_dist.png')
 
-    return img_subjectivities
+    subjectivity_rating = np.round(np.mean(subjectivities), 1)
+
+    return img_subjectivities, subjectivity_rating
 
 """
 Generates Song Polarity Distribution
@@ -207,19 +217,30 @@ def get_song_sentiments(all_songs):
         else:
             polarities.append(3)
 
-        if song_subjectivity < 0.3:
+        if song_subjectivity < 0.1:
             subjectivities.append(1)
-        elif song_subjectivity < 0.4:
+        elif song_subjectivity < 0.2:
             subjectivities.append(2)
-        elif song_subjectivity < 0.6:
+        elif song_subjectivity < 0.3:
             subjectivities.append(3)
-        elif song_subjectivity <  0.7:
+        elif song_subjectivity <  0.4:
             subjectivities.append(4)
-        else:
+        elif song_subjectivity <  0.5:
             subjectivities.append(5)
+        elif song_subjectivity <  0.6:
+            subjectivities.append(6)
+        elif song_subjectivity <  0.7:
+            subjectivities.append(7)
+        elif song_subjectivity <  0.8:
+            subjectivities.append(8)
+        elif song_subjectivity <  0.9:
+            subjectivities.append(9)
+        else:
+            subjectivities.append(10)
 
     img_polarities, polarity_verdict = get_song_polarity(polarities)
-    return img_polarities, polarity_verdict, get_song_subjectivity(subjectivities)
+    img_subjectivities, subjectivity_rating = get_song_subjectivity(subjectivities)
+    return img_polarities, polarity_verdict, img_subjectivities, subjectivity_rating
 
 """
 Save a searched artist
@@ -251,6 +272,12 @@ def check_artist(query_artist):
 
     if artist_entry in artists:
         return artist_entry
+    
+    artist_spelling = genius.search_artist(query_artist, max_songs=1)
+    artist_name = regex.sub('', artist_spelling.name).lower()
+
+    if artist_name in artists:
+        return artist_name
 
     return False
 
@@ -296,13 +323,92 @@ def get_lyrics(query_artist):
 
     return all_songs, all_lyrics
 
+
+"""
+Get Theme of Song Lyrics
+"""
+def get_abstract(words):
+    classes = ['concrete', 'abstract']
+
+    with open('concretenouns.txt') as f:
+        concrete_nouns = f.read().splitlines()
+    
+    with open('abstractnouns.txt') as f:
+        abstract_nouns = f.read().splitlines()
+
+    train_set = [
+        concrete_nouns,
+        abstract_nouns,
+    ]
+
+    X = np.stack([list(nlp(w))[0].vector for part in train_set for w in part])
+    y = [label for label, part in enumerate(train_set) for _ in part]
+    classifier = LogisticRegression(C=0.1, class_weight='balanced').fit(X, y)
+
+    output = []
+    for token in nlp(' '.join(words)):
+        if classes[classifier.predict([token.vector])[0]] == 'abstract':
+            output.append(str(token))
+
+    return output
+
+def sent_to_words(lyrics):
+    yield(gensim.utils.simple_preprocess(str(lyrics), deacc=True))
+
+def get_theme(lyrics):
+    out_lyrics = lyrics
+    i = 0
+    while i < 5:
+        token_test = word_tokenize(out_lyrics)
+        pos_test = nltk.pos_tag(token_test)
+        i += 1
+
+        out_lyrics = ' '.join([word for (word, pos) in pos_test if (pos == 'NN' and 'thing' not in word)])
+
+    lyrics = list(sent_to_words(out_lyrics))
+
+    with open('top100common.txt') as f:
+        common_words = f.read().split()
+
+    stopwords = set(STOPWORDS).union(set(common_words))
+
+    def remove_stopwords(texts):
+        return [[word for word in simple_preprocess(str(doc)) 
+                if word not in stopwords] for doc in texts]
+    
+    data_words = remove_stopwords(lyrics)
+
+    id2word = corpora.Dictionary(data_words)
+    texts = data_words
+    corpus = [id2word.doc2bow(text) for text in texts]
+
+    num_topics = 20
+    lda_model = gensim.models.LdaMulticore(corpus=corpus,
+                                           id2word=id2word,
+                                           num_topics=num_topics)
+
+    lda_topics = lda_model.show_topics(num_words=20)
+
+    topics = []
+    filters = [lambda x: x.lower(), strip_punctuation, strip_numeric]
+
+    for topic in lda_topics:
+        topics.append(preprocess_string(topic[1], filters))
+
+    themes = get_abstract(topics[0])
+
+    if len(themes) < 1:
+        return topics[:3]
+    return themes[:3]
+
 """
 Get Genius Lyrics Analysis of Artist Lyrics
 """
 def process_artist_lyrics(query_artist):
     all_songs, all_lyrics = get_lyrics(query_artist)
+    themes = get_theme(all_lyrics)
 
     img_wordcloud = word_cloud(all_lyrics)
-    img_polarities, polarity_verdict, img_subjectivities = get_song_sentiments(all_songs)
+    img_polarities, polarity_verdict, img_subjectivities, subjectivity_rating = get_song_sentiments(all_songs)
 
-    return all_songs, img_wordcloud, img_polarities, img_subjectivities, polarity_verdict
+    return all_songs, themes, img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict
