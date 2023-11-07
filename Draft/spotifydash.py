@@ -1,5 +1,5 @@
 #connecting genius & spotify
-#from search_artist import word_cloud, get_lyrics
+from search_artist.py import process_artist_lyrics
 
 #Dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
@@ -14,7 +14,7 @@ spt_img = Image.open("Draft\\spotify.png")
 image_path = "Draft\\sample_TaylorSwift_WordCloud.png"
 pil_img = Image.open(image_path)
 
-list = lines_list = open("ArtistLyrics//artists.txt" ).read().splitlines()
+lines_list = open("ArtistLyrics//artists.txt" ).read().splitlines()
 
 app = Dash(external_stylesheets=[dbc.themes.UNITED])
 default_color = default_color = 'rgb(121, 41, 82)'
@@ -55,10 +55,8 @@ app.layout = html.Div([
     )
 ], style={'padding': 100, 'border': 'solid'})
 
-#Assume search_artist has the function that process the image & analysis.
-#
 
-"""
+
 @callback(
     Output("word_cloud", "src"),
     Input("query_artist", "value"),
@@ -67,11 +65,12 @@ app.layout = html.Div([
 def get_word_cloud(query_artist,  n_clicks):
     if n_clicks == 0:
         return None
+    if query_artist in lines_list:
     lyrics = get_lyrics(query_artist)
     img_wordcloud = word_cloud(lyrics)
     return img_wordcloud
 
-#
+'''
 @callback(
     Output("table", "data"),
     Input("query_artist", "value"),
@@ -82,9 +81,10 @@ def update_table(input_keyword, n_clicks):
         return dash.no_update
     result = #analysis result
     return result
-"""
+'''
 
-def pre_run(query_artist):
+
+        
     
 
 if __name__ == '__main__':
