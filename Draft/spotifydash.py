@@ -58,12 +58,10 @@ app.layout = html.Div([
 def get_results(n_clicks, query_artist):
     artist = query_artist.lower().replace(" ", "")
     if n_clicks == 0:
-        return None
+        return None, None
     if artist in lines_list:
         return Image.open("ArtistLyrics//" + artist + "_image" + "." + "jpg"),  Image.open("ArtistLyrics//" + artist + "_wordCloud" + "." + "png")
-    else:
-        return None
-
+    return None, None
 
 if __name__ == '__main__':
     app.run_server(debug=True)
