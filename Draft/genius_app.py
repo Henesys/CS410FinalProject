@@ -29,13 +29,17 @@ accordion = html.Div(
         [
             dbc.AccordionItem(
                 dbc.Card([
-                html.Div(id="polarity_verdict"),
-                html.Div(id="themes"),
-                html.Div(id="subjectivity_rating"),
-                html.Img(id="word_cloud", style={'height':'auto', 'width':'50%'}),
-                html.Img(id="polarities_dist"),
-                html.Img(id="subjectivities_dist")
-                ]), title="Lyrical Analysis"
+                    dbc.Row([dbc.Col([html.H3("Overall Polarity"), html.Br(), html.H1(id="polarity_verdict"), html.Br()], style={'textAlign':'center'}, width=4),
+                             dbc.Col([html.H3("Common Topics"), html.Br(), html.Div(id="themes"), html.Br()], style={'textAlign':'center'}, width=4),
+                             dbc.Col([html.H3("Subjectivity Rating"), html.Br(), html.H1(id="subjectivity_rating"), html.Br()], style={'textAlign':'center'}, width=4),]),
+                    html.Br(),
+                    dbc.Row([dbc.Col([html.H3("Word Cloud"), html.Img(id="word_cloud", style={'height':'auto', 'width':'90%'})], style={'textAlign':'center'}, width=6),
+                            dbc.Col([html.H3("Lyric Polarity Distribution"), html.Img(id="polarities_dist", style={'height':'auto', 'width':'90%'}),
+                                    html.Br(), html.Br(),
+                                    html.H3("Lyric Subjectivity Distribution"), html.Img(id="subjectivities_dist", style={'height':'auto', 'width':'90%'})], style={'textAlign':'center'}, width=6)]),
+                ]
+                , className="border-0 bg-transparent"
+                ), title="Lyrical Analysis"
             ),
             dbc.AccordionItem(
                 "This is the content of the second section", 
@@ -53,7 +57,7 @@ app.layout = html.Div(
     [
         dbc.Card(dbc.Row([html.Img(src=spt_img, style={'height':'64px', 'width':'auto'}), 
                         dbc.Col(html.H1(children='Artist Dashboard', style={'textAlign':'center', 'color': "green", 'vertical-align':'center'})),  
-                        html.Img(src=spt_img, style={'height':'64px', 'width':'auto'})])),
+                        html.Img(src=spt_img, style={'height':'64px', 'width':'auto'})]), className="border-0 bg-transparent"),
         html.Br(),
         html.Center(form),
         html.H2(id="query_artist_lyrics", style={'textAlign':'center', 'vertical-align':'center'}),
@@ -87,7 +91,7 @@ def process(query_artist, n_clicks):
     # generates word_cloud.png, polarities_dist.png, subjectivities_dist.png
     all_songs, themes, img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict = search_artist.process_artist_lyrics(query_artist)
 
-    return "Artist Analysis Breakdown", themes, img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict, None, {'display': 'block'}
+    return "Artist Breakdown", html.Ul([html.H4(x) for x in themes], style={'padding': 0}), img_wordcloud, img_polarities, img_subjectivities, subjectivity_rating, polarity_verdict, None, {'display': 'block'}
 
 
 if __name__ == '__main__':

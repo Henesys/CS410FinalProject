@@ -133,7 +133,7 @@ def get_song_subjectivity(subjectivities):
     ax.set_xticks(range(1, 11))
     ax.set_xticklabels(['Objective', '', '', '', '', '', '', '', '', 'Subjective'])
     ax.tick_params(axis='x', length=0, pad=8, labelsize=18)
-    ax.set_title('Song Subjectivity Distribution', fontsize=18)
+    #ax.set_title('Song Subjectivity Distribution', fontsize=18)
 
     plt.savefig('subjectivities_dist.png')
 
@@ -163,7 +163,7 @@ def get_song_polarity(polarities):
     ax.set_xticks(range(-3, 4))
     ax.set_xticklabels(['---', '--', '-', 'o', '+', '++', '+++'])
     ax.tick_params(axis='x', length=0, pad=8, labelsize=18)
-    ax.set_title('Song Polarity Distribution', fontsize=18)
+    #ax.set_title('Song Polarity Distribution', fontsize=18)
 
     plt.savefig('polarities_dist.png')
 
