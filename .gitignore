@@ -1,5 +1,8 @@
-# API key credentials
+# API Key Credentials
 Spotify/credentials.py
 Spotify/.cache
+
 Draft/credentials.py
+Draft/__pycache__
+
 .DS_Store
