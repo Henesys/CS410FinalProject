@@ -223,20 +223,6 @@ def process(query_artist, n_clicks):
             {"display": "block"},
         )
 
-    except Exception as e:
-        return (
-            "Artist Analysis",
-            html.Ul([html.H4(x) for x in themes], style={"padding": 0}),
-            img_wordcloud,
-            img_polarities,
-            img_subjectivities,
-            subjectivity_rating,
-            polarity_verdict,
-            None,
-            {"display": "block"},
-        )
-
-    """
     # Exception for incorrect inputs
     except Exception as e:
         return (
@@ -250,7 +236,6 @@ def process(query_artist, n_clicks):
             None,
             {"display": "block"},
         )
-    """
 
 
 if __name__ == "__main__":
