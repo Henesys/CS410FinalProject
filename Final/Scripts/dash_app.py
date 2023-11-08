@@ -8,9 +8,11 @@ from dash.dependencies import Input, Output, State
 
 # Import Modules
 import base64
-import search_artist
+import genius
 from PIL import Image
 import time
+
+dir = os.path.dirname(__file__)
 
 # Text Formatting
 text_style = {"text-align": "center"}
@@ -18,7 +20,7 @@ image_style = {"height": "auto", "width": "100%"}
 
 app = app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
-spt_img = Image.open("spotify.png")
+spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
 
 artist_input = html.Div(
     [
@@ -207,7 +209,7 @@ def process(query_artist, n_clicks):
             img_subjectivities,
             subjectivity_rating,
             polarity_verdict,
-        ) = search_artist.process_artist_lyrics(query_artist)
+        ) = genius.process_artist_lyrics(query_artist)
 
         return (
             "Artist Analysis",

@@ -5,6 +5,7 @@ harrystyles
 jusd
 justinbeatscalling
 kanyewest
+<<<<<<< HEAD
 thetaylors
 geniusenglishtranslations
 beyonc
@@ -13,3 +14,6 @@ beyonc
 beyonc
 eminem
 travisscott
+=======
+juicewrld
+>>>>>>> 9c8b2f53798789b4ead73deaa2b7e6bb2c544991
