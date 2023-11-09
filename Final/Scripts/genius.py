@@ -255,7 +255,7 @@ def save_artist(artist_name, song_titles, all_songs):
     regex = re.compile('[^a-zA-Z]')
     artist_entry = regex.sub('', artist_name).lower()
 
-    with open(os.path.join(dir, "./../Artists/artists.txt"), 'a') as f:
+    with open(os.path.join(dir, "./../Artists/artists.txt"), 'a', encoding='utf-8') as f:
         f.write(artist_entry + "\n")
 
     with open(os.path.join(dir,'./../Artists/Titles/' + artist_entry + "_titles.txt"), 'w') as f:
@@ -270,7 +270,7 @@ def save_artist(artist_name, song_titles, all_songs):
 Check if artist lyrics were already processed
 """
 def check_artist(query_artist):
-    with open(os.path.join(dir, './../Artists/artists.txt')) as f:
+    with open(os.path.join(dir, './../Artists/artists.txt'), encoding='utf-8') as f:
         artists = f.read().splitlines()
     
     regex = re.compile('[^a-zA-Z]')
@@ -295,10 +295,10 @@ def get_lyrics(query_artist):
 
     if artist_exists:
         print("exists!")
-        with open(os.path.join(dir, './../Artists/Titles/' + artist_exists + '_titles.txt')) as f:
+        with open(os.path.join(dir, './../Artists/Titles/' + artist_exists + '_titles.txt'), encoding='utf-8') as f:
             song_titles = f.read().splitlines()
         
-        with open(os.path.join(dir, './../Artists/Lyrics/' + artist_exists + '_lyrics.txt')) as f:
+        with open(os.path.join(dir, './../Artists/Lyrics/' + artist_exists + '_lyrics.txt'), encoding='utf-8') as f:
             all_songs = f.read().splitlines()
     else:
         print("doesn't exist!")
@@ -336,10 +336,10 @@ Get Theme of Song Lyrics
 def get_abstract(words):
     classes = ['concrete', 'abstract']
 
-    with open(os.path.join(dir, './Lists/concretenouns.txt')) as f:
+    with open(os.path.join(dir, './Lists/concretenouns.txt'), encoding='utf-8') as f:
         concrete_nouns = f.read().splitlines()
     
-    with open(os.path.join(dir, './Lists/abstractnouns.txt')) as f:
+    with open(os.path.join(dir, './Lists/abstractnouns.txt'), encoding='utf-8') as f:
         abstract_nouns = f.read().splitlines()
 
     train_set = [
@@ -373,7 +373,7 @@ def get_theme(lyrics):
 
     lyrics = list(sent_to_words(out_lyrics))
 
-    with open(os.path.join(dir, './Lists/top100common.txt')) as f:
+    with open(os.path.join(dir, './Lists/top100common.txt'), encoding='utf-8') as f:
         common_words = f.read().split()
 
     stopwords = set(STOPWORDS).union(set(common_words))
