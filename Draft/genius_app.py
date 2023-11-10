@@ -207,7 +207,7 @@ def process(query_artist, n_clicks):
             img_subjectivities,
             subjectivity_rating,
             polarity_verdict,
-        ) = search_artist.process_artist_lyrics(query_artist)
+        ) = genius.process_artist_lyrics(query_artist)
 
         return (
             "Artist Analysis",
