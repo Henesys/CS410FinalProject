@@ -5,4 +5,7 @@ Spotify/.cache
 Draft/credentials.py
 Draft/__pycache__
 
+Final/Scripts/credentials.py
+Final/Scripts/__pycache__/
+
 .DS_Store

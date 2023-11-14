@@ -1,5 +1,8 @@
 import os
 
+# API Code
+import genius
+
 # Dash
 import dash
 from dash import Dash, dcc, html, Input, Output, callback, dash_table
@@ -8,9 +11,11 @@ from dash.dependencies import Input, Output, State
 
 # Import Modules
 import base64
-import search_artist
+import genius
 from PIL import Image
 import time
+
+dir = os.path.dirname(__file__)
 
 # Text Formatting
 text_style = {"text-align": "center"}
@@ -18,7 +23,7 @@ image_style = {"height": "auto", "width": "100%"}
 
 app = app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
-spt_img = Image.open("spotify.png")
+spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
 
 artist_input = html.Div(
     [
@@ -197,43 +202,65 @@ def process(query_artist, n_clicks):
 
     n_clicks = 0
 
-    # generates word_cloud.png, polarities_dist.png, subjectivities_dist.png
-    try:
-        (
-            all_songs,
-            themes,
-            img_wordcloud,
-            img_polarities,
-            img_subjectivities,
-            subjectivity_rating,
-            polarity_verdict,
-        ) = genius.process_artist_lyrics(query_artist)
+    (
+        all_songs,
+        themes,
+        img_wordcloud,
+        img_polarities,
+        img_subjectivities,
+        subjectivity_rating,
+        polarity_verdict,
+    ) = genius.process_artist_lyrics(query_artist)
 
-        return (
-            "Artist Analysis",
-            html.Ul([html.H4(x) for x in themes], style={"padding": 0}),
-            img_wordcloud,
-            img_polarities,
-            img_subjectivities,
-            subjectivity_rating,
-            polarity_verdict,
-            None,
-            {"display": "block"},
-        )
+    return (
+        "Artist Breakdown",
+        html.Ul([html.H4(x) for x in themes], style={"padding": 0}),
+        img_wordcloud,
+        img_polarities,
+        img_subjectivities,
+        subjectivity_rating,
+        polarity_verdict,
+        None,
+        {"display": "block"},
+    )
+
+    # generates word_cloud.png, polarities_dist.png, subjectivities_dist.png
+    # try:
+    #     (
+    #         all_songs,
+    #         themes,
+    #         img_wordcloud,
+    #         img_polarities,
+    #         img_subjectivities,
+    #         subjectivity_rating,
+    #         polarity_verdict,
+    #     ) = genius.process_artist_lyrics(query_artist)
+
+    #     return (
+    #         "Artist Analysis",
+    #         html.Ul([html.H4(x) for x in themes], style={"padding": 0}),
+    #         img_wordcloud,
+    #         img_polarities,
+    #         img_subjectivities,
+    #         subjectivity_rating,
+    #         polarity_verdict,
+    #         None,
+    #         {"display": "block"},
+    #     )
 
     # Exception for incorrect inputs
-    except Exception as e:
-        return (
-            "Loading...",
-            "Error. Please check the artist's name and try again.",
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            {"display": "block"},
-        )
+    # except Exception as e:
+    #     return (
+    #         "Loading...",
+    #         "Error. Please check the artist's name and try again.",
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         {"display": "block"},
+    #     )
 
 
 if __name__ == "__main__":
