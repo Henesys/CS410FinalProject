@@ -9,4 +9,5 @@ Final/Scripts/credentials.py
 Final/Scripts/__pycache__/
 Final/Scripts/.cache
 
+.cache
 .DS_Store
