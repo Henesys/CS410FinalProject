@@ -7,5 +7,6 @@ Draft/__pycache__
 
 Final/Scripts/credentials.py
 Final/Scripts/__pycache__/
+Final/Scripts/.cache
 
 .DS_Store
