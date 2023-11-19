@@ -105,8 +105,8 @@ def get_artist_info_csv(artist_name):
 
 
 # Prompt
-artist_name = input("Enter an artist's name: ")
-get_artist_info_csv(artist_name)
+# artist_name = input("Enter an artist's name: ")
+# get_artist_info_csv(artist_name)
 
 """
 Gets Artist's Face
@@ -144,8 +144,8 @@ def get_artist_face(artist_name):
 
 
 # Prompt
-artist_name = input("Enter an artist's name: ")
-get_artist_face(artist_name)
+# artist_name = input("Enter an artist's name: ")
+# get_artist_face(artist_name)
 
 """
 Create Distribution Plot
