@@ -12,7 +12,7 @@
 
 ## Progress Report:
 
-- [Progress Report](https://github.com/Henesys/CS410FinalProject/blob/main/Report.pdf)
+- [Progress Report](https://github.com/Henesys/CS410FinalProject/blob/main/ProgressReport.pdf)
 
 ## Project Demo:
 
