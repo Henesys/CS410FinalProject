@@ -25,7 +25,7 @@
 | Team Formation        | October 27th  | O      |
 | Project Proposal      | October 27th  | O      |
 | Progress Report       | November 19th | O      |
-| Peer Review 1         | November 26th | X      |
+| Peer Review 1         | November 26th | O      |
 | Code                  | December 8th  | X      |
 | Documentation         | December 8th  | X      |
 | Tutorial Presentation | December 8th  | X      |
