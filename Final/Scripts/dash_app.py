@@ -127,7 +127,7 @@ accordion = html.Div(
                                         ),
                                         html.Br(),
                                         html.Br(),
-                                        html.H3("Lyric Subjectivity Distribution"),
+                                        html.H3("Lyric Subjectivity Distribution:"),
                                         html.Img(
                                             id="subjectivities_dist",
                                             style={"height": "auto", "width": "90%"},
