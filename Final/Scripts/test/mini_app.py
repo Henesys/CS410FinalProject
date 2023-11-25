@@ -14,7 +14,7 @@ import time
 import requests
 
 # Mini Spotify --> Change to Spotify Later
-from mini_spotify import get_artist_info_csv, get_artist_face
+from mini_spotify import get_artist_info_csv_smaller, get_artist_face
 
 # Images (get_artist_face)
 from PIL import Image
@@ -42,6 +42,10 @@ app.layout = html.Div(
 
 # Visualizations
 def create_distribution_plot(df, column, color, title):
+    # Error with df?
+    if len(df) == 0:
+        return "Empty DataFrame"
+
     plt.figure(figsize=(15, 10))
     plot = sns.histplot(df[column], kde=True, color=color)
     plot.set_title(title)
@@ -89,7 +93,7 @@ def update_output(n_clicks, artist_name):
             # Trying to avoid 429
             time.sleep(20)
 
-            get_artist_info_csv(artist_name)
+            get_artist_info_csv_smaller(artist_name)
             get_artist_face(artist_name)
 
             # Load data from CSV

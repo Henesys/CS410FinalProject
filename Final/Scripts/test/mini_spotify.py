@@ -37,7 +37,7 @@ Creates CSV w/ Artist's Discography Information
 """
 
 
-def get_artist_info_csv(artist_name):
+def get_artist_info_csv_smaller(artist_name):
     # Enter artist's name
     results = sp.search(q="artist:" + artist_name, type="artist")
 
@@ -50,24 +50,21 @@ def get_artist_info_csv(artist_name):
 
         # Get the artist's albums --> fetch individual tracks
         albums = sp.artist_albums(
-            artist["id"], album_type="album", country=None, limit=50
+            artist["id"], album_type="album", country=None, limit=5
         )
 
         all_tracks = []
 
         # Retrieve tracks from each album
         for album in albums["items"]:
-            album_tracks = sp.album_tracks(album["id"])
+            album_tracks = sp.album_tracks(album["id"], limit=5)
             all_tracks.extend(album_tracks["items"])
 
         # https://www.freecodecamp.org/news/with-open-in-python-with-statement-syntax-example/
         # https://www.geeksforgeeks.org/how-to-open-a-file-using-the-with-statement/
         # https://note.nkmk.me/en/python-file-io-open-with/
         with open(
-            f"Final/Scripts/test/{artist_name}_info.csv",
-            "w",
-            newline="",
-            encoding="utf-8",
+            f"Final/Scripts/test/{artist_name}_info.csv", "w", newline=""
         ) as csvfile:
             fieldnames = [
                 "Track Name",
@@ -142,3 +139,50 @@ def get_artist_face(artist_name):
 
     else:
         print(f'Artist "{artist_name}" not found.')
+
+
+# Prompt
+# artist_name = input("Enter an artist's name: ")
+# get_artist_face(artist_name)
+
+"""
+Create Distribution Plot
+"""
+
+
+def create_distribution_plot(df, column, color, title):
+    plt.figure(figsize=(15, 10))
+    plot = sns.histplot(df[column], kde=True, color=color)
+    plot.set_title(title)
+    img_buf = BytesIO()
+    plt.savefig(img_buf, format="png")
+    img_buf.seek(0)
+    return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
+
+
+"""
+Pairplot
+"""
+
+
+def create_pairplot(df):
+    plt.figure(figsize=(20, 10))
+    plot = sns.pairplot(df)
+    img_buf = BytesIO()
+    plt.savefig(img_buf, format="png")
+    img_buf.seek(0)
+    return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
+
+
+"""
+Heatmap
+"""
+
+
+def create_heatmap(corr_matrix):
+    plt.figure(figsize=(20, 10))
+    plot = sns.heatmap(corr_matrix, annot=True)
+    img_buf = BytesIO()
+    plt.savefig(img_buf, format="png")
+    img_buf.seek(0)
+    return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
