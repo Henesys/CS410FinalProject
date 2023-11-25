@@ -10,17 +10,11 @@ from dash import Dash, dcc, html, Input, Output, callback, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 
-# NLTK
-import nltk
-
-nltk.download("punkt", quiet=True)
-nltk.download("averaged_perceptron_tagger", quiet=True)
-nltk.download("stopwords", quiet=True)
-
 # Import Modules
 import base64
 import genius
-from PIL import Image
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 import time
 
 dir = os.path.dirname(__file__)
@@ -29,7 +23,7 @@ dir = os.path.dirname(__file__)
 text_style = {"text-align": "center"}
 image_style = {"height": "auto", "width": "100%"}
 
-app = app = Dash(external_stylesheets=[dbc.themes.MINTY])
+app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
 spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
 
@@ -127,7 +121,7 @@ accordion = html.Div(
                                         ),
                                         html.Br(),
                                         html.Br(),
-                                        html.H3("Lyric Subjectivity Distribution"),
+                                        html.H3("Lyric Subjectivity Distribution:"),
                                         html.Img(
                                             id="subjectivities_dist",
                                             style={"height": "auto", "width": "90%"},
@@ -149,12 +143,11 @@ accordion = html.Div(
         ],
         flush=True,
         id="element-to-hide",
-        start_collapsed=True,
+        start_collapsed=False,
     ),
 )
 
-
-app.layout = html.Div(
+layout_search = html.Div(
     [
         dbc.Card(
             dbc.Row(
@@ -181,6 +174,16 @@ app.layout = html.Div(
             id="query_artist_lyrics",
             style={"textAlign": "center", "vertical-align": "center"},
         ),
+    ],
+    style={"padding": 50},
+)
+
+layout_result = html.Div(
+    [
+        dbc.Button("Back", href="/", style={"textAlign": "center"}),
+        html.Br(),
+        html.Br(),
+        html.H1(id="artist"),
         html.Br(),
         html.Center(accordion),
     ],
@@ -188,9 +191,27 @@ app.layout = html.Div(
 )
 
 
+app.layout = html.Div([
+    # represents the browser address bar and doesn't render anything
+    dcc.Location(id='url', refresh=False),
+
+    # content will be rendered in this element
+    html.Div(id='page-content')
+])
+
+@callback(
+        Output('page-content', 'children'), 
+        Input('url', 'pathname')
+        )
+def display_page(pathname):
+    if pathname == "/result":
+        return layout_result
+    else:
+        return layout_search
+
 @callback(
     [
-        Output("query_artist_lyrics", "children"),  # 'lyrics lyrics lyrics'
+        Output("artist", "children"),
         Output("themes", "children"),  # ['reputation', 'dream', 'problem']
         Output("word_cloud", "src"),  # PIL image
         Output("polarities_dist", "src"),  # PIL image
@@ -199,14 +220,53 @@ app.layout = html.Div(
         Output(
             "polarity_verdict", "children"
         ),  # '---', '--', '-', 'o', '+', '++', '+++'
-        Output("loading_output", "children"),
         Output("element-to-hide", component_property="style"),
+    ],
+        [ Input('url', 'pathname'), ]
+        )
+def display_page(pathname):
+    if pathname == "/result":
+        themes = []
+        polarity_verdict = 'o'
+        subjectivity_rating = '1.0'
+        artist = 'Search'
+
+        with open(os.path.join(dir, './Figures/artist.txt'), encoding='utf-8') as f:
+            artist = f.read().rstrip()
+
+        with open(os.path.join(dir, './Figures/themes.txt'), encoding='utf-8') as f:
+            themes = f.read().splitlines()
+
+        with open(os.path.join(dir, './Figures/polarity_verdict.txt'), encoding='utf-8') as f:
+            polarity_verdict = f.read().rstrip()
+
+        with open(os.path.join(dir, './Figures/subjectivity_rating.txt'), encoding='utf-8') as f:
+            subjectivity_rating = f.read().rstrip()
+        
+        polarities_path = os.path.join(dir, "./Figures/polarities_dist.png")
+        polarities_dist  = Image.open(polarities_path)
+
+        wordcloud_path = os.path.join(dir, "./Figures/word_cloud.png")
+        word_cloud  = Image.open(wordcloud_path)
+
+        subjectivities_path = os.path.join(dir, "./Figures/subjectivities_dist.png")
+        subjectivities_dist  = Image.open(subjectivities_path)
+
+        return artist, html.Ul([html.H4(x) for x in themes], style={"padding": 0}), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict, {"display": "block"}
+    return 'Going Back...', None, None, None, None, None, None, {"display": "none"}
+
+
+@callback(
+    [
+        Output("query_artist_lyrics", "children"),  # 'lyrics lyrics lyrics'
+        Output("loading_output", "children"),
+        Output("url", 'pathname'),
     ],
     [State("query_artist", "value"), Input("submit_artist", "n_clicks")],
 )
 def process(query_artist, n_clicks):
     if n_clicks == 0:
-        return None, None, None, None, None, None, None, None, {"display": "none"}
+        return None, None, "/"
 
     n_clicks = 0
 
@@ -221,15 +281,9 @@ def process(query_artist, n_clicks):
     ) = genius.process_artist_lyrics(query_artist)
 
     return (
-        "Artist Breakdown",
-        html.Ul([html.H4(x) for x in themes], style={"padding": 0}),
-        img_wordcloud,
-        img_polarities,
-        img_subjectivities,
-        subjectivity_rating,
-        polarity_verdict,
+        "Showing Results...",
         None,
-        {"display": "block"},
+        "/result"
     )
 
 if __name__ == "__main__":

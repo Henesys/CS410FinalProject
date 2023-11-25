@@ -29,7 +29,7 @@ dir = os.path.dirname(__file__)
 text_style = {"text-align": "center"}
 image_style = {"height": "auto", "width": "100%"}
 
-app = app = Dash(external_stylesheets=[dbc.themes.MINTY])
+app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
 spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
 
