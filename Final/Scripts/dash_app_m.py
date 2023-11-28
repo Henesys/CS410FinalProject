@@ -47,6 +47,7 @@ artist_input = html.Div(
             width="auto",
         ),
         html.Br(),
+        html.Br(),
         dbc.Spinner(
             html.Div(id="loading_output"),
             color="success",
@@ -147,6 +148,165 @@ accordion = html.Div(
     ),
 )
 
+tab1_content = dbc.Card(
+    dbc.CardBody(
+        [
+            html.P("artist image here? / maybe songs list considered if relevant", className="card-text"),
+        ]
+    ),
+    className="mt-3",
+)
+
+tab2_content = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(html.H2([dbc.Badge("Word Cloud", className="ms-1", color="info")])),
+                            html.Img(
+                                id="word_cloud",
+                                style={"height": "auto", "width": "90%"},
+                            ),
+                            html.Br(),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.Center(html.H2([dbc.Badge("Common Topics", className="ms-1", color="info")])),
+                            html.Div(id="themes"),
+                            html.Br(),
+                            html.H1("filler filler filler")
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
+            )
+        ]
+    ),
+    className="mt-3",
+)
+
+tab3_content = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(html.H2([dbc.Badge("Polarity", className="ms-1", color="info")])),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody([
+                                                    html.Center(html.H3([dbc.Badge("Rating", className="ms-1", color="primary")])),
+                                                    html.Br(),
+                                                    html.H1(id="polarity_verdict"),
+                                                ]),
+                                            ),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        
+                                        [
+                                            html.H3("idk"),
+                                            html.Br(),
+                                            html.H3("rotating what to put here"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Card(
+                                dbc.CardBody([
+                                    html.Center(html.H3([dbc.Badge("Song Polarity Distribution", className="ms-1", color="primary")])),
+                                    html.Img(
+                                        id="polarities_dist",
+                                        style={"height": "auto", "width": "90%", "textAlign": "center"},
+                                    ),
+                                ]),
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.Center(html.H2([dbc.Badge("Subjectivity", className="ms-1", color="info")])),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody([
+                                                    html.Center(html.H3([dbc.Badge("Rating", className="ms-1", color="primary")])),
+                                                    html.Br(),
+                                                    html.H1(id="subjectivity_rating"),
+                                                ]),
+                                            ),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        
+                                        [
+                                            html.H3("idk"),
+                                            html.Br(),
+                                            html.H3("rotating what to put here"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Card(
+                                dbc.CardBody([
+                                    html.Center(html.H3([dbc.Badge("Song Subjectivity Distribution", className="ms-1", color="primary")])),
+                                    html.Img(
+                                        id="subjectivities_dist",
+                                        style={"height": "auto", "width": "90%", "textAlign": "center"},
+                                    ),
+                                ]),
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
+            )
+        ]
+    ),
+    className="mt-3",
+)
+
+tab4_content = dbc.Card(
+    dbc.CardBody(
+        [
+            html.P("This is tab 4!", className="card-text"),
+            dbc.Button("Don't click here", color="danger"),
+        ]
+    ),
+    className="mt-3",
+)
+
 layout_search = html.Div(
     [
         dbc.Card(
@@ -180,12 +340,19 @@ layout_search = html.Div(
 
 layout_result = html.Div(
     [
-        dbc.Button("Back", href="/", style={"textAlign": "center"}),
+        dbc.Button("Search", href="/", style={"textAlign": "center"}),
         html.Br(),
         html.Br(),
-        html.H1(id="artist"),
-        html.Br(),
-        html.Center(accordion),
+        #html.H1(id="artist", style={"textAlign": "center"}),
+        html.Center(html.H1([dbc.Badge(id="artist", className="ms-1", color="success")])),
+        dbc.Tabs(
+            [
+                dbc.Tab(tab1_content, label="Artist"),
+                dbc.Tab(tab2_content, label="Lyrics: Word Usage"),
+                dbc.Tab(tab3_content, label="Lyrics: Sentiment"),
+                dbc.Tab(tab4_content, label="Musicality: (placeholder)"),
+            ]
+        ),
     ],
     style={"padding": 50},
 )
@@ -220,7 +387,7 @@ def display_page(pathname):
         Output(
             "polarity_verdict", "children"
         ),  # '---', '--', '-', 'o', '+', '++', '+++'
-        Output("element-to-hide", component_property="style"),
+        #Output("element-to-hide", component_property="style"),
     ],
         [ Input('url', 'pathname'), ]
         )
@@ -252,8 +419,8 @@ def display_page(pathname):
         subjectivities_path = os.path.join(dir, "./Figures/subjectivities_dist.png")
         subjectivities_dist  = Image.open(subjectivities_path)
 
-        return artist, html.Ul([html.H4(x) for x in themes], style={"padding": 0}), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict, {"display": "block"}
-    return 'Going Back...', None, None, None, None, None, None, {"display": "none"}
+        return artist, dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], horizontal="lg", className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict#, {"display": "block"}
+    return 'Going Back...', None, None, None, None, None, None#, {"display": "none"}
 
 
 @callback(
