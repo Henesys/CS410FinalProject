@@ -7,5 +7,10 @@ Draft/__pycache__
 
 Final/Scripts/credentials.py
 Final/Scripts/__pycache__/
+Final/Scripts/.cache
 
+Final/Scripts/test/mini_credentials.py
+Final/Scripts/test/__pycache__/
+
+.cache
 .DS_Store

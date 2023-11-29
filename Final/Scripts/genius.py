@@ -146,6 +146,9 @@ def get_song_subjectivity(subjectivities):
 
     subjectivity_rating = np.round(np.mean(subjectivities), 1)
 
+    with open(os.path.join(dir, './Figures/subjectivity_rating.txt'), 'w') as f:
+        f.write(str(subjectivity_rating))
+
     return img_subjectivities, subjectivity_rating
 
 """
@@ -190,6 +193,9 @@ def get_song_polarity(polarities):
         polarity_verdict = '++'
     elif polarity_value > 0:
         polarity_verdict = '+' 
+
+    with open(os.path.join(dir, './Figures/polarity_verdict.txt'), 'w') as f:
+        f.write(polarity_verdict)
 
     return img_polarities, polarity_verdict
 
@@ -272,6 +278,9 @@ Check if artist lyrics were already processed
 def check_artist(query_artist):
     with open(os.path.join(dir, './../Artists/artists.txt'), encoding='utf-8') as f:
         artists = f.read().splitlines()
+
+    with open(os.path.join(dir, './Figures/artist.txt'), 'w') as f:
+        f.write(query_artist)
     
     regex = re.compile('[^a-zA-Z]')
     artist_entry = regex.sub('', query_artist).lower()
@@ -405,6 +414,7 @@ def get_theme(lyrics):
 
     if len(themes) < 1:
         return topics[:3]
+
     return themes[:3]
 
 """
@@ -413,6 +423,10 @@ Get Genius Lyrics Analysis of Artist Lyrics
 def process_artist_lyrics(query_artist):
     all_songs, all_lyrics = get_lyrics(query_artist)
     themes = get_theme(all_lyrics)
+
+    with open(os.path.join(dir, './Figures/themes.txt'), 'w') as f:
+        for item in themes:
+            f.write("%s\n" % item)
 
     img_wordcloud = word_cloud(all_lyrics)
     img_polarities, polarity_verdict, img_subjectivities, subjectivity_rating = get_song_sentiments(all_songs)

@@ -32,7 +32,9 @@ image_style = {"height": "auto", "width": "100%"}
 app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
 spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
+gen_img = Image.open(os.path.join(dir, "./Figures/genius.png"))
 
+# Search Tab
 artist_input = html.Div(
     [
         html.H3("Enter Artist's Name Below:", style=text_style),
@@ -62,8 +64,10 @@ artist_input = html.Div(
     className="mb-3",
 )
 
+# https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 form = dbc.Form([artist_input])
 
+# Genius + Spotify
 accordion = html.Div(
     dbc.Accordion(
         [
@@ -127,7 +131,7 @@ accordion = html.Div(
                                         ),
                                         html.Br(),
                                         html.Br(),
-                                        html.H3("Lyric Subjectivity Distribution:"),
+                                        html.H3("Lyric Subjectivity Distribution"),
                                         html.Img(
                                             id="subjectivities_dist",
                                             style={"height": "auto", "width": "90%"},
@@ -144,7 +148,13 @@ accordion = html.Div(
                 title="Lyrical Analysis",
             ),
             dbc.AccordionItem(
-                "This is the content of the second section", title="Musical Analysis"
+                [
+                    html.H3("Top Spotify Tracks:"),
+                    html.Br(),
+                    html.Div(id="spotify_tracks"),
+                    html.Br(),
+                ],
+                title="Musical Analysis",
             ),
         ],
         flush=True,
@@ -153,7 +163,7 @@ accordion = html.Div(
     ),
 )
 
-
+# App Layout
 app.layout = html.Div(
     [
         dbc.Card(
@@ -187,28 +197,24 @@ app.layout = html.Div(
     style={"padding": 50},
 )
 
-
-@callback(
+# Genius Callback
+@app.callback(
     [
-        Output("query_artist_lyrics", "children"),  # 'lyrics lyrics lyrics'
-        Output("themes", "children"),  # ['reputation', 'dream', 'problem']
-        Output("word_cloud", "src"),  # PIL image
-        Output("polarities_dist", "src"),  # PIL image
-        Output("subjectivities_dist", "src"),  # PIL image
-        Output("subjectivity_rating", "children"),  # 3.5 (one decimal)
-        Output(
-            "polarity_verdict", "children"
-        ),  # '---', '--', '-', 'o', '+', '++', '+++'
+        Output("query_artist_lyrics", "children"),
+        Output("themes", "children"),
+        Output("word_cloud", "src"),
+        Output("polarities_dist", "src"),
+        Output("subjectivities_dist", "src"),
+        Output("subjectivity_rating", "children"),
+        Output("polarity_verdict", "children"),
         Output("loading_output", "children"),
         Output("element-to-hide", component_property="style"),
     ],
     [State("query_artist", "value"), Input("submit_artist", "n_clicks")],
 )
 def process(query_artist, n_clicks):
-    if n_clicks == 0:
+    if n_clicks == 0 or query_artist is None:
         return None, None, None, None, None, None, None, None, {"display": "none"}
-
-    n_clicks = 0
 
     (
         all_songs,
@@ -231,6 +237,22 @@ def process(query_artist, n_clicks):
         None,
         {"display": "block"},
     )
+
+# Spotify Callback
+@app.callback(
+    Output("spotify_tracks", "children"),
+    [Input("submit_artist", "n_clicks")],
+    [State("query_artist", "value")],
+)
+def get_spotify_tracks(n_clicks, query_artist):
+    if n_clicks == 0 or query_artist is None:
+        return None
+
+    # Call Spotify functions from spotify.py to get top tracks
+    top_tracks = spotipy.get_top_tracks(query_artist)
+
+    # Display top tracks
+    return html.Ul([html.Li(track) for track in top_tracks])
 
 if __name__ == "__main__":
     app.run_server(debug=True)
