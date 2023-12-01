@@ -31,13 +31,12 @@ client_credentials_manager = SpotifyClientCredentials(
     client_id=client_id, client_secret=client_secret
 )
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-
 """
 Creates CSV w/ Artist's Discography Information
 """
 
 
-def get_artist_info_csv(artist_name):
+def get_artist_info_csv_smaller(artist_name):
     # Enter artist's name
     results = sp.search(q="artist:" + artist_name, type="artist")
 
@@ -50,20 +49,22 @@ def get_artist_info_csv(artist_name):
 
         # Get the artist's albums --> fetch individual tracks
         albums = sp.artist_albums(
-            artist["id"], album_type="album", country=None, limit=50
+            artist["id"], album_type="album", country=None, limit=5
         )
 
         all_tracks = []
 
         # Retrieve tracks from each album
         for album in albums["items"]:
-            album_tracks = sp.album_tracks(album["id"])
+            album_tracks = sp.album_tracks(album["id"], limit=5)
             all_tracks.extend(album_tracks["items"])
 
         # https://www.freecodecamp.org/news/with-open-in-python-with-statement-syntax-example/
         # https://www.geeksforgeeks.org/how-to-open-a-file-using-the-with-statement/
         # https://note.nkmk.me/en/python-file-io-open-with/
-        with open(f"{artist_name}_info.csv", "w", newline="") as csvfile:
+        with open(
+            f"Final/Scripts/test/{artist_name}_info.csv", "w", newline=""
+        ) as csvfile:
             fieldnames = [
                 "Track Name",
                 "Acousticness",
@@ -104,10 +105,6 @@ def get_artist_info_csv(artist_name):
         print(f'Artist "{artist_name}" not found.')
 
 
-# Prompt
-# artist_name = input("Enter an artist's name: ")
-# get_artist_info_csv(artist_name)
-
 """
 Gets Artist's Face
 """
@@ -128,7 +125,7 @@ def get_artist_face(artist_name):
             # https://developer.spotify.com/documentation/web-api/reference/get-an-artist
             if response.status_code == 200:
                 image = Image.open(BytesIO(response.content))
-                image.save(f"{artist_name}_image.jpg")
+                image.save(f"Final/Scripts/test/{artist_name}_image.jpg")
 
                 print(f'Artist\'s Name: {artist["name"]}')
                 print(f"Artist's face saved as {artist_name}_face.jpg")
@@ -151,20 +148,20 @@ def get_artist_face(artist_name):
 Create Distribution Plot
 """
 
-
+# Visualizations
 def create_distribution_plot(df, column, color, title):
+    # Error with df?
+    if len(df) == 0:
+        return "Empty DataFrame"
+
     plt.figure(figsize=(15, 10))
     plot = sns.histplot(df[column], kde=True, color=color)
     plot.set_title(title)
     img_buf = BytesIO()
     plt.savefig(img_buf, format="png")
     img_buf.seek(0)
+    plt.close()  # Close plot to avoid GUI errors
     return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
-
-
-"""
-Pairplot
-"""
 
 
 def create_pairplot(df):
@@ -173,12 +170,8 @@ def create_pairplot(df):
     img_buf = BytesIO()
     plt.savefig(img_buf, format="png")
     img_buf.seek(0)
+    plt.close()  # Close plot to avoid GUI errors
     return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
-
-
-"""
-Heatmap
-"""
 
 
 def create_heatmap(corr_matrix):
@@ -187,4 +180,6 @@ def create_heatmap(corr_matrix):
     img_buf = BytesIO()
     plt.savefig(img_buf, format="png")
     img_buf.seek(0)
+    plt.close()  # Close plot to avoid GUI errors
     return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
+

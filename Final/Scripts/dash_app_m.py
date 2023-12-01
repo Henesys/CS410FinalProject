@@ -10,12 +10,24 @@ from dash import Dash, dcc, html, Input, Output, callback, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 
+# Data Visualization
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import base64
+import time
+import requests
+
 # Import Modules
 import base64
 import genius
 from PIL import Image, ImageFile
+from io import BytesIO
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-import time
+
+# Fix matplotlib to work in a non-interactive mode
+plt.switch_backend("Agg")
 
 dir = os.path.dirname(__file__)
 

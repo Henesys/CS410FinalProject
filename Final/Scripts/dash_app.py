@@ -10,18 +10,25 @@ from dash import Dash, dcc, html, Input, Output, callback, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 
-# NLTK
-import nltk
-
-nltk.download("punkt", quiet=True)
-nltk.download("averaged_perceptron_tagger", quiet=True)
-nltk.download("stopwords", quiet=True)
+# Data Visualization
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import base64
+import time
+import requests
 
 # Import Modules
 import base64
 import genius
-from PIL import Image
-import time
+from PIL import Image, ImageFile
+from io import BytesIO
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+# Fix matplotlib to work in a non-interactive mode
+plt.switch_backend("Agg")
 
 dir = os.path.dirname(__file__)
 
@@ -53,6 +60,7 @@ artist_input = html.Div(
             width="auto",
         ),
         html.Br(),
+        html.Br(),
         dbc.Spinner(
             html.Div(id="loading_output"),
             color="success",
@@ -64,97 +72,499 @@ artist_input = html.Div(
 
 form = dbc.Form([artist_input])
 
-accordion = html.Div(
-    dbc.Accordion(
+tab1_content = dbc.Card(
+    dbc.CardBody(
         [
-            dbc.AccordionItem(
-                dbc.Card(
-                    [
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    [
-                                        html.H3("Overall Polarity:"),
-                                        html.Br(),
-                                        html.H1(id="polarity_verdict"),
-                                        html.Br(),
-                                    ],
-                                    style={"textAlign": "center"},
-                                    width=4,
-                                ),
-                                dbc.Col(
-                                    [
-                                        html.H3("Common Topics:"),
-                                        html.Br(),
-                                        html.Div(id="themes"),
-                                        html.Br(),
-                                    ],
-                                    style={"textAlign": "center"},
-                                    width=4,
-                                ),
-                                dbc.Col(
-                                    [
-                                        html.H3("Subjectivity Rating:"),
-                                        html.Br(),
-                                        html.H1(id="subjectivity_rating"),
-                                        html.Br(),
-                                    ],
-                                    style={"textAlign": "center"},
-                                    width=4,
-                                ),
-                            ]
-                        ),
-                        html.Br(),
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    [
-                                        html.H3("Word Cloud:"),
-                                        html.Img(
-                                            id="word_cloud",
-                                            style={"height": "auto", "width": "90%"},
-                                        ),
-                                    ],
-                                    style={"textAlign": "center"},
-                                    width=6,
-                                ),
-                                dbc.Col(
-                                    [
-                                        html.H3("Lyric Polarity Distribution:"),
-                                        html.Img(
-                                            id="polarities_dist",
-                                            style={"height": "auto", "width": "90%"},
-                                        ),
-                                        html.Br(),
-                                        html.Br(),
-                                        html.H3("Lyric Subjectivity Distribution:"),
-                                        html.Img(
-                                            id="subjectivities_dist",
-                                            style={"height": "auto", "width": "90%"},
-                                        ),
-                                    ],
-                                    style={"textAlign": "center"},
-                                    width=6,
-                                ),
-                            ]
-                        ),
-                    ],
-                    className="border-0 bg-transparent",
-                ),
-                title="Lyrical Analysis",
+            html.P(
+                "artist image here? / maybe songs list considered if relevant",
+                className="card-text",
             ),
-            dbc.AccordionItem(
-                "This is the content of the second section", title="Musical Analysis"
-            ),
-        ],
-        flush=True,
-        id="element-to-hide",
-        start_collapsed=True,
+        ]
     ),
+    className="mt-3",
 )
 
+tab2_content = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Word Cloud", className="ms-1", color="info"
+                                        )
+                                    ]
+                                )
+                            ),
+                            html.Img(
+                                id="word_cloud",
+                                style={"height": "auto", "width": "90%"},
+                            ),
+                            html.Br(),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Common Topics",
+                                            className="ms-1",
+                                            color="info",
+                                        )
+                                    ]
+                                )
+                            ),
+                            html.H4(html.Div(id="themes")),
+                            html.Br(),
+                            html.H1("filler filler filler"),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
+            )
+        ]
+    ),
+    className="mt-3",
+)
 
-app.layout = html.Div(
+tab3_content = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Polarity", className="ms-1", color="info"
+                                        )
+                                    ]
+                                )
+                            ),
+                            # dbc.CardHeader(html.H2("Polarity", className="card-title")),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody(
+                                                    [
+                                                        html.Center(
+                                                            html.H3(
+                                                                [
+                                                                    dbc.Badge(
+                                                                        "Rating",
+                                                                        className="ms-1",
+                                                                        color="light",
+                                                                    )
+                                                                ]
+                                                            )
+                                                        ),
+                                                        html.Br(),
+                                                        html.H1(id="polarity_verdict"),
+                                                    ]
+                                                ),
+                                                className="border-0",
+                                            ),
+                                        ],
+                                        style={
+                                            "textAlign": "center",
+                                            "border-right": "2px solid",
+                                            "border-right-color": "#e3e6e4",
+                                        },
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H3("idk"),
+                                            html.Br(),
+                                            html.H3("maybe an explanation?"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [
+                                                html.Center(
+                                                    html.H3(
+                                                        [
+                                                            dbc.Badge(
+                                                                "Song Polarity Distribution",
+                                                                className="ms-1",
+                                                                color="light",
+                                                            )
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Img(
+                                                    id="polarities_dist",
+                                                    style={
+                                                        "height": "auto",
+                                                        "width": "90%",
+                                                    },
+                                                ),
+                                            ]
+                                        ),
+                                        className="border-0",
+                                    ),
+                                ],
+                                style={
+                                    "textAlign": "center",
+                                    "border-top": "2px solid",
+                                    "border-top-color": "#e3e6e4",
+                                    "margin-left": "3px",
+                                    "margin-right": "3px",
+                                },
+                            ),
+                        ],
+                        style={
+                            "textAlign": "center",
+                            "border-right": "2px solid",
+                            "border-right-color": "#e3e6e4",
+                        },
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Subjectivity",
+                                            className="ms-1",
+                                            color="info",
+                                        )
+                                    ]
+                                )
+                            ),
+                            # dbc.CardHeader(html.H2("Subjectivity", className="card-title")),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody(
+                                                    [
+                                                        html.Center(
+                                                            html.H3(
+                                                                [
+                                                                    dbc.Badge(
+                                                                        "Rating",
+                                                                        className="ms-1",
+                                                                        color="light",
+                                                                    )
+                                                                ]
+                                                            )
+                                                        ),
+                                                        html.Br(),
+                                                        html.H1(
+                                                            id="subjectivity_rating"
+                                                        ),
+                                                    ]
+                                                ),
+                                                className="border-0",
+                                            ),
+                                        ],
+                                        style={
+                                            "textAlign": "center",
+                                            "border-right": "2px solid",
+                                            "border-right-color": "#e3e6e4",
+                                        },
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H3("idk"),
+                                            html.Br(),
+                                            html.H3("maybe an explanation?"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [
+                                                html.Center(
+                                                    html.H3(
+                                                        [
+                                                            dbc.Badge(
+                                                                "Song Subjectivity Distribution",
+                                                                className="ms-1",
+                                                                color="light",
+                                                            )
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Img(
+                                                    id="subjectivities_dist",
+                                                    style={
+                                                        "height": "auto",
+                                                        "width": "90%",
+                                                    },
+                                                ),
+                                            ]
+                                        ),
+                                        className="border-0",
+                                    ),
+                                ],
+                                style={
+                                    "textAlign": "center",
+                                    "border-top": "2px solid",
+                                    "border-top-color": "#e3e6e4",
+                                    "margin-left": "3px",
+                                    "margin-right": "3px",
+                                },
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
+            )
+        ]
+    ),
+    className="mt-3",
+)
+
+tab4_content = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Distribution Plot",
+                                            className="ms-1",
+                                            color="info",
+                                        )
+                                    ]
+                                )
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody(
+                                                    [
+                                                        html.Center(
+                                                            html.H3(
+                                                                [
+                                                                    dbc.Badge(
+                                                                        "Overview",
+                                                                        className="ms-1",
+                                                                        color="light",
+                                                                    )
+                                                                ]
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                                className="border-0",
+                                            ),
+                                        ],
+                                        style={
+                                            "textAlign": "center",
+                                            "border-right": "2px solid",
+                                            "border-right-color": "#e3e6e4",
+                                        },
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H3("Caption"),
+                                            html.Br(),
+                                            html.H3("Sentence"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [
+                                                html.Center(
+                                                    html.H3(
+                                                        [
+                                                            dbc.Badge(
+                                                                "Danceability",
+                                                                className="ms-1",
+                                                                color="light",
+                                                            )
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Img(
+                                                    id="polarities_dist",
+                                                    style={
+                                                        "height": "auto",
+                                                        "width": "90%",
+                                                    },
+                                                ),
+                                            ]
+                                        ),
+                                        className="border-0",
+                                    ),
+                                ],
+                                style={
+                                    "textAlign": "center",
+                                    "border-top": "2px solid",
+                                    "border-top-color": "#e3e6e4",
+                                    "margin-left": "3px",
+                                    "margin-right": "3px",
+                                },
+                            ),
+                        ],
+                        style={
+                            "textAlign": "center",
+                            "border-right": "2px solid",
+                            "border-right-color": "#e3e6e4",
+                        },
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Pairplot", className="ms-1", color="info"
+                                        )
+                                    ]
+                                )
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody(
+                                                    [
+                                                        html.Center(
+                                                            html.H3(
+                                                                [
+                                                                    dbc.Badge(
+                                                                        "Overview",
+                                                                        className="ms-1",
+                                                                        color="light",
+                                                                    )
+                                                                ]
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                                className="border-0",
+                                            ),
+                                        ],
+                                        style={
+                                            "textAlign": "center",
+                                            "border-right": "2px solid",
+                                            "border-right-color": "#e3e6e4",
+                                        },
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H3("Caption"),
+                                            html.Br(),
+                                            html.H3("Sentence"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [
+                                                html.Center(
+                                                    html.H3(
+                                                        [
+                                                            dbc.Badge(
+                                                                "Song Subjectivity Distribution",
+                                                                className="ms-1",
+                                                                color="light",
+                                                            )
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Img(
+                                                    id="subjectivities_dist",
+                                                    style={
+                                                        "height": "auto",
+                                                        "width": "90%",
+                                                    },
+                                                ),
+                                            ]
+                                        ),
+                                        className="border-0",
+                                    ),
+                                ],
+                                style={
+                                    "textAlign": "center",
+                                    "border-top": "2px solid",
+                                    "border-top-color": "#e3e6e4",
+                                    "margin-left": "3px",
+                                    "margin-right": "3px",
+                                },
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
+            )
+        ]
+    ),
+    className="mt-3",
+)
+
+layout_search = html.Div(
     [
         dbc.Card(
             dbc.Row(
@@ -181,16 +591,54 @@ app.layout = html.Div(
             id="query_artist_lyrics",
             style={"textAlign": "center", "vertical-align": "center"},
         ),
+    ],
+    style={"padding": 50},
+)
+
+layout_result = html.Div(
+    [
+        dbc.Button("Search", href="/", style={"textAlign": "center"}),
         html.Br(),
-        html.Center(accordion),
+        html.Br(),
+        # html.H1(id="artist", style={"textAlign": "center"}),
+        html.Center(
+            html.H1([dbc.Badge(id="artist", className="ms-1", color="success")])
+        ),
+        html.Br(),
+        dbc.Tabs(
+            [
+                dbc.Tab(tab1_content, label="Artist"),
+                dbc.Tab(tab2_content, label="Lyrics: Word Usage"),
+                dbc.Tab(tab3_content, label="Lyrics: Sentiment"),
+                dbc.Tab(tab4_content, label="Audio Features"),
+            ]
+        ),
     ],
     style={"padding": 50},
 )
 
 
+app.layout = html.Div(
+    [
+        # represents the browser address bar and doesn't render anything
+        dcc.Location(id="url", refresh=False),
+        # content will be rendered in this element
+        html.Div(id="page-content"),
+    ]
+)
+
+
+@callback(Output("page-content", "children"), Input("url", "pathname"))
+def display_page(pathname):
+    if pathname == "/result":
+        return layout_result
+    else:
+        return layout_search
+
+
 @callback(
     [
-        Output("query_artist_lyrics", "children"),  # 'lyrics lyrics lyrics'
+        Output("artist", "children"),
         Output("themes", "children"),  # ['reputation', 'dream', 'problem']
         Output("word_cloud", "src"),  # PIL image
         Output("polarities_dist", "src"),  # PIL image
@@ -199,14 +647,83 @@ app.layout = html.Div(
         Output(
             "polarity_verdict", "children"
         ),  # '---', '--', '-', 'o', '+', '++', '+++'
+        Output("artist-image", "src"),
+        Output("distribution-plot", "src"),
+        Output("pairplot", "src"),
+        Output("heatmap", "src"),
+    ],
+    [
+        Input("url", "pathname"),
+    ],
+)
+def display_page(pathname):
+    if pathname == "/result":
+        themes = []
+        polarity_verdict = "o"
+        subjectivity_rating = "1.0"
+        artist = "Search"
+
+        with open(os.path.join(dir, "./Figures/artist.txt"), encoding="utf-8") as f:
+            artist = f.read().rstrip()
+
+        with open(os.path.join(dir, "./Figures/themes.txt"), encoding="utf-8") as f:
+            themes = f.read().splitlines()
+
+        with open(
+            os.path.join(dir, "./Figures/polarity_verdict.txt"), encoding="utf-8"
+        ) as f:
+            polarity_verdict = f.read().rstrip()
+
+        with open(
+            os.path.join(dir, "./Figures/subjectivity_rating.txt"), encoding="utf-8"
+        ) as f:
+            subjectivity_rating = f.read().rstrip()
+
+        polarities_path = os.path.join(dir, "./Figures/polarities_dist.png")
+        polarities_dist = Image.open(polarities_path)
+
+        wordcloud_path = os.path.join(dir, "./Figures/word_cloud.png")
+        word_cloud = Image.open(wordcloud_path)
+
+        subjectivities_path = os.path.join(dir, "./Figures/subjectivities_dist.png")
+        subjectivities_dist = Image.open(subjectivities_path)
+
+        artist_image_path = os.path.join(dir, "./Figures/artist_image.png")
+
+        distribution_plot_path = os.path.join(dir, "./Figures/distribution_plot.png")
+        pairplot_path = os.path.join(dir, "./Figures/pairplot.png")
+        heatmap_path = os.path.join(dir, "./Figures/heatmap.png")
+
+        return (
+            artist,
+            dbc.ListGroup(
+                [dbc.ListGroupItem(x) for x in themes],
+                className="mb-2",
+            ),
+            word_cloud,
+            polarities_dist,
+            subjectivities_dist,
+            subjectivity_rating,
+            polarity_verdict,
+            artist_image_path,
+            distribution_plot_path,
+            pairplot_path,
+            heatmap_path,
+        )
+    return "Going Back...", None, None, None, None, None, None  # , {"display": "none"}
+
+
+@callback(
+    [
+        Output("query_artist_lyrics", "children"),  # 'lyrics lyrics lyrics'
         Output("loading_output", "children"),
-        Output("element-to-hide", component_property="style"),
+        Output("url", "pathname"),
     ],
     [State("query_artist", "value"), Input("submit_artist", "n_clicks")],
 )
 def process(query_artist, n_clicks):
     if n_clicks == 0:
-        return None, None, None, None, None, None, None, None, {"display": "none"}
+        return None, None, "/"
 
     n_clicks = 0
 
@@ -220,17 +737,8 @@ def process(query_artist, n_clicks):
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
 
-    return (
-        "Artist Breakdown",
-        html.Ul([html.H4(x) for x in themes], style={"padding": 0}),
-        img_wordcloud,
-        img_polarities,
-        img_subjectivities,
-        subjectivity_rating,
-        polarity_verdict,
-        None,
-        {"display": "block"},
-    )
+    return ("Showing Results...", None, "/result")
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
