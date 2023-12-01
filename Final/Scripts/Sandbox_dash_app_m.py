@@ -2,7 +2,7 @@ import os
 
 # API Code
 import genius
-import spotify
+from spotify import *
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -30,23 +30,11 @@ from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import time
 
-#credentials
-client_id = "23a48114b46d41a99f93984d81c98c89"
-client_secret = "96e97ed005f44c34a4d078637f4d1ca7"
-
-client_credentials_manager = SpotifyClientCredentials(
-    client_id=client_id, client_secret=client_secret
-)
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-
 dir = os.path.dirname(__file__)
 
 # Text Formatting
 text_style = {"text-align": "center"}
 image_style = {"height": "auto", "width": "100%"}
-
-#list of artist
-#artists =  open("Artists//artists.txt" ).read().splitlines()
 
 app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
@@ -87,10 +75,15 @@ form = dbc.Form([artist_input])
 tab1_content = dbc.Card(
     dbc.CardBody(
         [
-            #Artist Image
             html.P("artist image here? / maybe songs list considered if relevant", className="card-text"),
-            #html.Img(src = Image.open("Spotify//Taylor Swift_image.jpg"))
-            html.Img(id="artist-image", src="")
+            html.Img(
+                        id="artist_img",
+                        style={"height": "auto", "width": "90%"},
+                    ),
+            html.Img(
+                        id="img1",
+                        style={"height": "auto", "width": "90%"},
+                    ),
         ]
     ),
     className="mt-3",
@@ -330,83 +323,28 @@ def display_page(pathname):
     else:
         return layout_search
 
-
-#Artist image
-
-def get_artist_face(artist_name):
-    # Enter artist's name
-    results = sp.search(q="artist:" + artist_name, type="artist")
-
-    if results["artists"]["items"]:
-        artist = results["artists"]["items"][0]
-
-        # Face
-        if artist["images"]:
-            image_url = artist["images"][0]["url"]
-            response = requests.get(image_url)
-
-            # https://developer.spotify.com/documentation/web-api/reference/get-an-artist
-            if response.status_code == 200:
-                image = Image.open(BytesIO(response.content))
-                image.save(f"Final/Scripts/test/{artist_name}_image.jpg")
-
-                print(f'Artist\'s Name: {artist["name"]}')
-                print(f"Artist's face saved as {artist_name}_face.jpg")
-
-            else:
-                print("Failed to fetch artist's profile image.")
-
-        else:
-            print(f'Artist "{artist_name}" does not have an image of their face.')
-
-    else:
-        print(f'Artist "{artist_name}" not found.')
-
-
-
-@app.callback(
+@callback(
     [
-        #Output("output-message", "children"),
-        Output("artist-image", "src"),
-        #Output("distribution-plot", "src"),
-        #Output("pairplot", "src"),
-        #Output("heatmap", "src"),
+        Output("img1", "src"),
+        Output("artist_img", "src"),
     ],
-    [State("query_artist", "value"),
-    Input('url', 'pathname'), 
-    Input("submit_artist", "n_clicks")]
-)
-def update_output(query_artist, pathname n_clicks):
-        if pathname == "/result":
-        return layout_result
-    else:
-        return layout_search
+        [ Input('url', 'pathname'), ]
+        )
+def display_page_spotify(pathname):
+    if pathname == "/result":
+        # put your artist name here (I used my own artist name for now, but it would be better if you use whatever format the spotify.py file saves it as)
+        # my saved artist name matches the query directly so it would not fix typos
+        with open(os.path.join(dir, './Figures/artist.txt'), encoding='utf-8') as f:
+            artist = f.read().rstrip()
 
-    if n_clicks is not None:
-        try:
-            # Trying to avoid 429
-            time.sleep(20)
+        # open all of your images here
+        # remember to replace one of the artist images and add to the callback (I only put two because having only one image was giving me errors)
+        # using spotify.py functions (imported) and not mini_spotify.py, don't know if it makes a difference
+        artist_img_path = os.path.join(dir, "./test/" + artist + "_image.jpg")
+        artist_img = Image.open(artist_img_path)
 
-            get_artist_face(query_artist)
-
-            return (
-                f"Final/Scripts/test/{query_artist}_image.jpg",
-            )
-
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 429:
-                return (
-                    "Error: Rate limit exceeded. Please try again later.",
-                )
-            else:
-                return f"Error: {str(e)}"
-
-        except Exception as e:
-            return f"Error: {str(e)}"
-
-    return ""
-
-
+        return artist_img, artist_img
+    return None, None
 
 
 @callback(
@@ -424,7 +362,7 @@ def update_output(query_artist, pathname n_clicks):
     ],
         [ Input('url', 'pathname'), ]
         )
-def display_page(pathname):
+def display_page_genius(pathname):
     if pathname == "/result":
         themes = []
         polarity_verdict = 'o'
@@ -442,7 +380,7 @@ def display_page(pathname):
 
         with open(os.path.join(dir, './Figures/subjectivity_rating.txt'), encoding='utf-8') as f:
             subjectivity_rating = f.read().rstrip()
-        
+
         polarities_path = os.path.join(dir, "./Figures/polarities_dist.png")
         polarities_dist  = Image.open(polarities_path)
 
@@ -452,8 +390,8 @@ def display_page(pathname):
         subjectivities_path = os.path.join(dir, "./Figures/subjectivities_dist.png")
         subjectivities_dist  = Image.open(subjectivities_path)
 
-        return artist, dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict#, {"display": "block"}
-    return 'Going Back...', None, None, None, None, None, None#, {"display": "none"}
+        return artist, dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict
+    return 'Going Back...', None, None, None, None, None, None
 
 
 @callback(
@@ -479,6 +417,9 @@ def process(query_artist, n_clicks):
         subjectivity_rating,
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
+
+    # add rest of spotify code here (e.g. saving the different graphs, creating/making the csv)
+    get_artist_face(query_artist)
 
     return (
         "Showing Results...",

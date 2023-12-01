@@ -2,13 +2,26 @@ import os
 
 # API Code
 import genius
-import spotify
+from spotify import *
+
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
 # Dash
 import dash
 from dash import Dash, dcc, html, Input, Output, callback, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+
+# Data Visualization
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import requests
+
+# Images (get_artist_face)
+from io import BytesIO
 
 # Import Modules
 import base64
@@ -63,6 +76,14 @@ tab1_content = dbc.Card(
     dbc.CardBody(
         [
             html.P("artist image here? / maybe songs list considered if relevant", className="card-text"),
+            html.Img(
+                        id="artist_img",
+                        style={"height": "auto", "width": "90%"},
+                    ),
+            html.Img(
+                        id="img1",
+                        style={"height": "auto", "width": "90%"},
+                    ),
         ]
     ),
     className="mt-3",
@@ -304,6 +325,25 @@ def display_page(pathname):
 
 @callback(
     [
+        Output("img1", "src"),
+        Output("artist_img", "src"),
+    ],
+        [ Input('url', 'pathname'), ]
+        )
+def display_page_spotify(pathname):
+    if pathname == "/result":
+        with open(os.path.join(dir, './Figures/artist.txt'), encoding='utf-8') as f:
+            artist = f.read().rstrip()
+
+        artist_img_path = os.path.join(dir, "./test/" + artist + "_image.jpg")
+        artist_img = Image.open(artist_img_path)
+
+        return artist_img, artist_img
+    return "test", None
+
+
+@callback(
+    [
         Output("artist", "children"),
         Output("themes", "children"),  # ['reputation', 'dream', 'problem']
         Output("word_cloud", "src"),  # PIL image
@@ -317,7 +357,7 @@ def display_page(pathname):
     ],
         [ Input('url', 'pathname'), ]
         )
-def display_page(pathname):
+def display_page_genius(pathname):
     if pathname == "/result":
         themes = []
         polarity_verdict = 'o'
@@ -335,7 +375,7 @@ def display_page(pathname):
 
         with open(os.path.join(dir, './Figures/subjectivity_rating.txt'), encoding='utf-8') as f:
             subjectivity_rating = f.read().rstrip()
-        
+
         polarities_path = os.path.join(dir, "./Figures/polarities_dist.png")
         polarities_dist  = Image.open(polarities_path)
 
@@ -345,8 +385,8 @@ def display_page(pathname):
         subjectivities_path = os.path.join(dir, "./Figures/subjectivities_dist.png")
         subjectivities_dist  = Image.open(subjectivities_path)
 
-        return artist, dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict#, {"display": "block"}
-    return 'Going Back...', None, None, None, None, None, None#, {"display": "none"}
+        return artist, dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict
+    return 'Going Back...', None, None, None, None, None, None
 
 
 @callback(
@@ -372,6 +412,8 @@ def process(query_artist, n_clicks):
         subjectivity_rating,
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
+
+    get_artist_face(query_artist)
 
     return (
         "Showing Results...",
