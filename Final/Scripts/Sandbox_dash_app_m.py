@@ -27,11 +27,8 @@ from io import BytesIO
 import base64
 import genius
 from PIL import Image, ImageFile
-from io import BytesIO
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-# Fix matplotlib to work in a non-interactive mode
-plt.switch_backend("Agg")
+import time
 
 dir = os.path.dirname(__file__)
 
@@ -335,14 +332,19 @@ def display_page(pathname):
         )
 def display_page_spotify(pathname):
     if pathname == "/result":
+        # put your artist name here (I used my own artist name for now, but it would be better if you use whatever format the spotify.py file saves it as)
+        # my saved artist name matches the query directly so it would not fix typos
         with open(os.path.join(dir, './Figures/artist.txt'), encoding='utf-8') as f:
             artist = f.read().rstrip()
 
+        # open all of your images here
+        # remember to replace one of the artist images and add to the callback (I only put two because having only one image was giving me errors)
+        # using spotify.py functions (imported) and not mini_spotify.py, don't know if it makes a difference
         artist_img_path = os.path.join(dir, "./test/" + artist + "_image.jpg")
         artist_img = Image.open(artist_img_path)
 
         return artist_img, artist_img
-    return "test", None
+    return None, None
 
 
 @callback(
@@ -416,6 +418,7 @@ def process(query_artist, n_clicks):
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
 
+    # add rest of spotify code here (e.g. saving the different graphs, creating/making the csv)
     get_artist_face(query_artist)
 
     return (
