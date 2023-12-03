@@ -266,6 +266,9 @@ def save_artist(artist_name, song_titles, all_songs):
 
     with open(os.path.join(dir,'./../Artists/Titles/' + artist_entry + "_titles.txt"), 'w') as f:
         f.write("\n".join(map(str, song_titles)))
+
+        with open(os.path.join(dir, "./Figures/artist_titles.txt"), 'w') as f:
+            f.write("\n".join(map(str, song_titles)))
     
     with open(os.path.join(dir, './../Artists/Lyrics/' + artist_entry + "_lyrics.txt"), 'w') as f:
         f.write("\n".join(map(str, all_songs)))
@@ -306,6 +309,9 @@ def get_lyrics(query_artist):
         print("exists!")
         with open(os.path.join(dir, './../Artists/Titles/' + artist_exists + '_titles.txt'), encoding='utf-8') as f:
             song_titles = f.read().splitlines()
+
+            with open(os.path.join(dir, "./Figures/artist_titles.txt"), 'w') as f:
+                f.write("\n".join(map(str, song_titles)))
         
         with open(os.path.join(dir, './../Artists/Lyrics/' + artist_exists + '_lyrics.txt'), encoding='utf-8') as f:
             all_songs = f.read().splitlines()

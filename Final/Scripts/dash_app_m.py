@@ -96,11 +96,8 @@ tab2_content = dbc.Card(
                 [
                     dbc.Col(
                         [
-                            html.Center(html.H2([dbc.Badge("Word Cloud", className="ms-1", color="info")])),
-                            html.Img(
-                                id="word_cloud",
-                                style={"height": "auto", "width": "90%"},
-                            ),
+                            html.Center(html.H2([dbc.Badge("Lyrics Considered", className="ms-1", color="danger")])),
+                            html.H4(html.Div(id="artist_titles")),
                             html.Br(),
                         ],
                         style={"textAlign": "center"},
@@ -108,10 +105,15 @@ tab2_content = dbc.Card(
                     ),
                     dbc.Col(
                         [
-                            html.Center(html.H2([dbc.Badge("Common Topics", className="ms-1", color="info")])),
+                            html.Center(html.H2([dbc.Badge("Common Themes", className="ms-1", color="info")])),
                             html.H4(html.Div(id="themes")),
                             html.Br(),
-                            html.H1("filler filler filler")
+                            html.Center(html.H2([dbc.Badge("Word Cloud", className="ms-1", color="info")])),
+                            html.Img(
+                                id="word_cloud",
+                                style={"height": "auto", "width": "90%"},
+                            ),
+                            html.Br(),
                         ],
                         style={"textAlign": "center"},
                         width=6,
@@ -146,19 +148,22 @@ tab3_content = dbc.Card(
                                                 className="border-0",
                                             ),
                                         ],
-                                        style={"textAlign": "center", "border-right":"2px solid", "border-right-color":"#e3e6e4"},
+                                        style={"textAlign": "center"},
                                         className="h-25",
                                         width=4,
                                     ),
                                     dbc.Col(
-                                        
                                         [
-                                            html.H3("idk"),
-                                            html.Br(),
-                                            html.H3("maybe an explanation?"),
-                                            html.Br(),
+                                            dbc.Card(
+                                                dbc.CardBody([
+                                                    html.Center(html.H3([dbc.Badge("About", className="ms-1", color="light")])),
+                                                    html.H5("Polarity describes the positivity/negativity conveyed by the lyrics."),
+                                                    html.H5("Our scale ranges from '---' (very negative) to 'o' (neutral) to '+++' (very positive)."),
+                                                ]),
+                                                className="border-0",
+                                            ),
                                         ],
-                                        style={"textAlign": "center"},
+                                        style={"textAlign": "center", "border-left":"2px solid", "border-left-color":"#e3e6e4"},
                                         width=8,
                                     ),
                                 ],
@@ -200,19 +205,22 @@ tab3_content = dbc.Card(
                                                 className="border-0",
                                             ),
                                         ],
-                                        style={"textAlign": "center", "border-right":"2px solid", "border-right-color":"#e3e6e4"},
+                                        style={"textAlign": "center"},
                                         className="h-25",
                                         width=4,
                                     ),
                                     dbc.Col(
-                                        
                                         [
-                                            html.H3("idk"),
-                                            html.Br(),
-                                            html.H3("maybe an explanation?"),
-                                            html.Br(),
+                                            dbc.Card(
+                                                dbc.CardBody([
+                                                    html.Center(html.H3([dbc.Badge("About", className="ms-1", color="light")])),
+                                                    html.H5("Subjectivity describes whether the lyrics are opinionated or factual."),
+                                                    html.H5("Our scale ranges from 1 (factual/objective) to 10 (very opinionated/subjective)."),
+                                                ]),
+                                                className="border-0",
+                                            ),
                                         ],
-                                        style={"textAlign": "center"},
+                                        style={"textAlign": "center", "border-left":"2px solid", "border-left-color":"#e3e6e4"},
                                         width=8,
                                     ),
                                 ],
@@ -345,6 +353,7 @@ def display_page_spotify(pathname):
 @callback(
     [
         Output("artist", "children"),
+        Output("artist_titles", "children"),
         Output("themes", "children"),  # ['reputation', 'dream', 'problem']
         Output("word_cloud", "src"),  # PIL image
         Output("polarities_dist", "src"),  # PIL image
@@ -367,6 +376,9 @@ def display_page_genius(pathname):
         with open(os.path.join(dir, './Figures/artist.txt'), encoding='utf-8') as f:
             artist = f.read().rstrip()
 
+        with open(os.path.join(dir, './Figures/artist_titles.txt'), encoding='utf-8') as f:
+            artist_titles = f.read().splitlines()
+
         with open(os.path.join(dir, './Figures/themes.txt'), encoding='utf-8') as f:
             themes = f.read().splitlines()
 
@@ -385,8 +397,8 @@ def display_page_genius(pathname):
         subjectivities_path = os.path.join(dir, "./Figures/subjectivities_dist.png")
         subjectivities_dist  = Image.open(subjectivities_path)
 
-        return artist, dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict
-    return 'Going Back...', None, None, None, None, None, None
+        return artist, dbc.ListGroup([dbc.ListGroupItem(x.title()) for x in artist_titles], className="mb-2",), dbc.ListGroup([dbc.ListGroupItem(x) for x in themes], className="mb-2",), word_cloud, polarities_dist, subjectivities_dist, subjectivity_rating, polarity_verdict
+    return 'Going Back...', None, None, None, None, None, None, None
 
 
 @callback(
