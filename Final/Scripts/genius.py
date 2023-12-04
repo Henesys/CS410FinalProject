@@ -40,7 +40,10 @@ top_song_num = 10
 stop_words = set(stopwords.words('english'))
 
 """
-Checks if Song Name that is about to be added is already in the Song List.
+Checks if Song Name that is about to be added is already in the Song List
+-- removes extraneous descriptors (e.g. [Live] [Studio Version]) from song title
+-- if already in song list, return False (song title will not be used)
+-- if not already in song list, return True and the cleaned song title
 """
 def check_repeat(song_list, new_song_title):
     song_title = re.sub("\(.*?\)|\[.*?\]","", new_song_title).replace('\u200b', '').strip()
@@ -53,6 +56,9 @@ def check_repeat(song_list, new_song_title):
 Processes Song Lyrics
 -- removes stop words
 -- removes punctuation
+-- removes common instances of shortenings (e.g. "comin'" to "coming")
+-- runs lyrics through autocorrect
+-- returns the filtered lyrics
 """
 def process_lyrics(lyrics):
     lyrics_lines = lyrics.split("Lyrics", 1)[1].strip()
@@ -85,7 +91,7 @@ def process_lyrics(lyrics):
     return filtered_lyrics
 
 """
-Generates Word Cloud
+Generates Word Cloud from filtered lyrics
 """
 def word_cloud(lyrics):
     token_lyrics = word_tokenize(lyrics)
@@ -118,7 +124,7 @@ def word_cloud(lyrics):
     return im
 
 """
-Generates Song Subjectivity Distribution
+Generates Song Subjectivity Distribution Graph
 """
 def get_song_subjectivity(subjectivities):
     values, counts = np.unique(subjectivities, return_counts=True)
@@ -152,7 +158,7 @@ def get_song_subjectivity(subjectivities):
     return img_subjectivities, subjectivity_rating
 
 """
-Generates Song Polarity Distribution
+Generates Song Polarity Distribution Graph
 """
 def get_song_polarity(polarities):
     values, counts = np.unique(polarities, return_counts=True)
@@ -201,6 +207,7 @@ def get_song_polarity(polarities):
 
 """
 Generates Song Sentiment Distribution
+-- gets polarity and subjectivity values of all the artist's songs and passes them to preceding functions
 """
 def get_song_sentiments(all_songs):
     polarities = []
@@ -255,7 +262,7 @@ def get_song_sentiments(all_songs):
     return img_polarities, polarity_verdict, img_subjectivities, subjectivity_rating
 
 """
-Save a searched artist
+Save a searched artist (song titles and filtered song lyrics)
 """
 def save_artist(artist_name, song_titles, all_songs):
     regex = re.compile('[^a-zA-Z]')
@@ -277,6 +284,8 @@ def save_artist(artist_name, song_titles, all_songs):
 
 """
 Check if artist lyrics were already processed
+-- if already searched, then return resulting artist name
+-- if new, return False
 """
 def check_artist(query_artist):
     with open(os.path.join(dir, './../Artists/artists.txt'), encoding='utf-8') as f:
@@ -346,7 +355,8 @@ def get_lyrics(query_artist):
 
 
 """
-Get Theme of Song Lyrics
+Returns list of abstract nouns given a list of nouns
+- uses a simple Logistic Regression network trained on concrete/abstract nouns
 """
 def get_abstract(words):
     classes = ['concrete', 'abstract']
@@ -376,6 +386,15 @@ def get_abstract(words):
 def sent_to_words(lyrics):
     yield(gensim.utils.simple_preprocess(str(lyrics), deacc=True))
 
+"""
+Extracts themes from an artist's filtered song lyrics
+-- gets nouns from the lyrics
+-- excludes common words that are not themes from consideration
+-- removes stopwords
+-- extracts topics using LDA model
+-- gets abstract words from the extracted topics and return top 3 as list
+---- if top 3 are not available, return top 3 topics (directly from LDA model) instead
+"""
 def get_theme(lyrics):
     out_lyrics = lyrics
     i = 0
