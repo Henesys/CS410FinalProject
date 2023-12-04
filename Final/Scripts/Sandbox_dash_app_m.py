@@ -25,7 +25,6 @@ from io import BytesIO
 
 # Import Modules
 import base64
-import genius
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import time
@@ -39,6 +38,10 @@ image_style = {"height": "auto", "width": "100%"}
 app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
 spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
+
+'''
+Front End UI
+'''
 
 artist_input = html.Div(
     [
@@ -72,10 +75,14 @@ artist_input = html.Div(
 
 form = dbc.Form([artist_input])
 
+'''
+Tab 1
+'''
+
 tab1_content = dbc.Card(
     dbc.CardBody(
         [
-            html.P("artist image here? / maybe songs list considered if relevant", className="card-text"),
+            html.P("Artist Image", className="card-text"),
             html.Img(
                         id="artist_img",
                         style={"height": "auto", "width": "90%"},
@@ -88,6 +95,10 @@ tab1_content = dbc.Card(
     ),
     className="mt-3",
 )
+
+'''
+Tab 2
+'''
 
 tab2_content = dbc.Card(
     dbc.CardBody(
@@ -122,6 +133,10 @@ tab2_content = dbc.Card(
     ),
     className="mt-3",
 )
+
+'''
+Tab 3
+'''
 
 tab3_content = dbc.Card(
     dbc.CardBody(
@@ -243,15 +258,109 @@ tab3_content = dbc.Card(
     className="mt-3",
 )
 
+'''
+Tab 4
+'''
+
 tab4_content = dbc.Card(
     dbc.CardBody(
         [
-            html.P("This is tab 4!", className="card-text"),
-            dbc.Button("Don't click here", color="danger"),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Distribution Plot",
+                                            className="ms-1",
+                                            color="info",
+                                        )
+                                    ]
+                                )
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody(
+                                                    [
+                                                        html.Center(
+                                                            html.H3(
+                                                                [
+                                                                    dbc.Badge(
+                                                                        "Overview",
+                                                                        className="ms-1",
+                                                                        color="light",
+                                                                    )
+                                                                ]
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                                className="border-0",
+                                            ),
+                                        ],
+                                        style={
+                                            "textAlign": "center",
+                                            "border-right": "2px solid",
+                                            "border-right-color": "#e3e6e4",
+                                        },
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H3("Caption"),
+                                            html.Br(),
+                                            html.H3("Sentence"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [
+                                                html.Center(
+                                                    html.H3(
+                                                        [
+                                                            dbc.Badge(
+                                                                "Danceability",
+                                                                className="ms-1",
+                                                                color="light",
+                                                            )
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Img(
+
+                                                )
+                                            ]
+                                        )
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            )
         ]
     ),
     className="mt-3",
 )
+
+'''
+App Layout (Front)
+'''
 
 layout_search = html.Div(
     [
@@ -284,6 +393,10 @@ layout_search = html.Div(
     style={"padding": 50},
 )
 
+'''
+App Layout (Back)
+'''
+
 layout_result = html.Div(
     [
         dbc.Button("Search", href="/", style={"textAlign": "center"}),
@@ -297,7 +410,7 @@ layout_result = html.Div(
                 dbc.Tab(tab1_content, label="Artist"),
                 dbc.Tab(tab2_content, label="Lyrics: Word Usage"),
                 dbc.Tab(tab3_content, label="Lyrics: Sentiment"),
-                dbc.Tab(tab4_content, label="Musicality: (placeholder)"),
+                dbc.Tab(tab4_content, label="Audio Features"),
             ]
         ),
     ],
@@ -312,6 +425,10 @@ app.layout = html.Div([
     # content will be rendered in this element
     html.Div(id='page-content')
 ])
+
+'''
+Callbacks
+'''
 
 @callback(
         Output('page-content', 'children'), 
@@ -328,8 +445,19 @@ def display_page(pathname):
         Output("img1", "src"),
         Output("artist_img", "src"),
     ],
-        [ Input('url', 'pathname'), ]
-        )
+    [ Input('url', 'pathname'), ]
+)
+
+
+@callback(
+    [
+        Output("distribution-plot", "src"),
+        Output("pairplot", "src"),
+        Output("heatmap", "src"),
+    ],
+    [Input('url', 'pathname')]
+)
+
 def display_page_spotify(pathname):
     if pathname == "/result":
         # put your artist name here (I used my own artist name for now, but it would be better if you use whatever format the spotify.py file saves it as)

@@ -647,7 +647,6 @@ def display_page(pathname):
         Output(
             "polarity_verdict", "children"
         ),  # '---', '--', '-', 'o', '+', '++', '+++'
-        Output("artist-image", "src"),
         Output("distribution-plot", "src"),
         Output("pairplot", "src"),
         Output("heatmap", "src"),

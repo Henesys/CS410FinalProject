@@ -1,8 +1,3 @@
 reputation
-<<<<<<< HEAD
 problem
 end
-=======
-end
-problem
->>>>>>> 4e22898e4b558d94c54ae02276c0366c2a825793
