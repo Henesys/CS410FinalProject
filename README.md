@@ -14,6 +14,9 @@
 
 - [Progress Report](https://github.com/Henesys/CS410FinalProject/blob/main/ProgressReport.pdf)
 
+## Documentation:
+- [Documentation](https://github.com/Henesys/CS410FinalProject/blob/main/Documentation.pdf)
+
 ## Project Demo:
 
 -
@@ -27,6 +30,6 @@
 | Progress Report       | November 19th | O      |
 | Peer Review 1         | November 26th | O      |
 | Code                  | December 8th  | X      |
-| Documentation         | December 8th  | X      |
-| Tutorial Presentation | December 8th  | X      |
+| Documentation         | December 8th  | O      |
+| Tutorial Presentation | December 8th  | O      |
 | Peer Review 2         | December 15th | X      |
