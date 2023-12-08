@@ -1,0 +1,96 @@
+
+tab4_content = dbc.Card(
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(
+                                html.H2(
+                                    [
+                                        dbc.Badge(
+                                            "Distribution Plot",
+                                            className="ms-1",
+                                            color="info",
+                                        )
+                                    ]
+                                )
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Card(
+                                                dbc.CardBody(
+                                                    [
+                                                        html.Center(
+                                                            html.H3(
+                                                                [
+                                                                    dbc.Badge(
+                                                                        "Overview",
+                                                                        className="ms-1",
+                                                                        color="light",
+                                                                    )
+                                                                ]
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                                className="border-0",
+                                            ),
+                                        ],
+                                        style={
+                                            "textAlign": "center",
+                                            "border-right": "2px solid",
+                                            "border-right-color": "#e3e6e4",
+                                        },
+                                        className="h-25",
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        [
+                                            html.H3("Caption"),
+                                            html.Br(),
+                                            html.H3("Sentence"),
+                                            html.Br(),
+                                        ],
+                                        style={"textAlign": "center"},
+                                        width=8,
+                                    ),
+                                ],
+                            ),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        dbc.CardBody(
+                                            [
+                                                html.Center(
+                                                    html.H3(
+                                                        [
+                                                            dbc.Badge(
+                                                                "Danceability",
+                                                                className="ms-1",
+                                                                color="light",
+                                                            )
+                                                        ]
+                                                    )
+                                                ),
+                                                html.Img(
+
+                                                )
+                                            ]
+                                        )
+                                    )
+                                ]
+                            )
+                        ]
+                    )
+                ]
+            )
+        ]
+    ),
+    className="mt-3",
+)

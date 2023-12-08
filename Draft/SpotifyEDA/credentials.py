@@ -1,0 +1,6 @@
+# Spotify Credentials
+CLIENT_ID = "23a48114b46d41a99f93984d81c98c89"
+CLIENT_SECRET = "96e97ed005f44c34a4d078637f4d1ca7"
+
+# Genius Credentials
+ACCESS_TOKEN = "FcEUfoawFiGndm0-Sr7MQ9q5Qc7kfgpfiDOKGzcl6XXKEwIyDV1C5TDEwc872FnP"
