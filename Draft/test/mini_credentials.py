@@ -1,6 +1,0 @@
-# Spotify Credentials
-CLIENT_ID = "23a48114b46d41a99f93984d81c98c89"
-CLIENT_SECRET = "96e97ed005f44c34a4d078637f4d1ca7"
-
-# Genius Credentials
-ACCESS_TOKEN = "GsPk-0yhPoS9a8V43pLoZg3_ccW4YLgOHa7zVHGquJBtiJIWOtjxBLc8dAyvTfXJ"
