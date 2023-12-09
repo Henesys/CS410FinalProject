@@ -70,7 +70,7 @@ def get_artist_info_csv_smaller(artist_name):
 
         # with open(os.path.join(dir, ""))
 
-        csv_folder = os.path.join(dir, "Final", "CSV")
+        csv_folder = os.path.join(dir, "CSV")
         csv_path = os.path.join(csv_folder, f"{artist_name}_info.csv")
 
         with open(csv_path, "w", newline="") as csvfile:
@@ -176,15 +176,16 @@ def create_distribution_plot(df, column, color, title):
     plt.savefig(dist_plot_path)
 
     im = Image.open(dist_plot_path)
-    
+
     return im
+
 
 def create_pairplot(df):
     plt.figure(figsize=(20, 10))
     plot = sns.pairplot(df)
 
     pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
-    
+
     plt.savefig(pair_plot_path)
 
     im = Image.open(pair_plot_path)
