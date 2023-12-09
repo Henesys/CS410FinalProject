@@ -610,11 +610,11 @@ def process(query_artist, n_clicks):
     get_artist_face(query_artist)
 
     csv_folder = os.path.join(dir, "CSV")
-    csv_path = os.path.join(csv_folder, f"{artist_name}_info.csv")
+    csv_path = os.path.join(csv_folder, query_artist + "_info.csv")
     df = pd.read_csv(csv_path)
 
-    create_distribution_plot(df, "Danceability", "blue", "Distribution Plot")
-    create_pairplot(df)
+    create_distribution_plot(df, "Danceability", "blue", "Distribution Plot", query_artist)
+    create_pairplot(df, query_artist)
 
     return ("Showing Results...", None, "/result")
 
