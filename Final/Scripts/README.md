@@ -25,4 +25,7 @@ Below are some artists that we've pre-run from the API to give faster results.
 - Justin Bieber
 - Harry Styles
 - Kanye West
-You may search for other artists but API limitations may increase run-time significantly. More detailed limitations notes in Documentation.
+
+You may search for other artists but API limitations may increase run-time significantly.
+Please make sure the spelling of the artist name is correct, or you may get default images.
+More detailed limitations notes in Documentation.
