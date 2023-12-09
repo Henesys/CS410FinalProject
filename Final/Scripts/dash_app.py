@@ -453,13 +453,25 @@ def display_page_spotify(pathname):
         artist_img = Image.open(artist_img_path)
 
         dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_Danceabilityfigure.png")
-        dist_plot_img = Image.open(dist_plot_path)
+        try:
+            dist_plot_img = Image.open(dist_plot_path)
+        except:
+            artist = 'Artist Error'
+            dist_plot_img = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
         dist_plot_path2 = os.path.join(dir, "../Artists/Figures/" + artist + "_Energyfigure.png")
-        dist_plot_img2 = Image.open(dist_plot_path2)
+        try:
+            dist_plot_img2 = Image.open(dist_plot_path2)
+        except:
+            artist = 'Artist Error'
+            dist_plot_img2 = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
         pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
-        pair_plot_img = Image.open(pair_plot_path)
+        try:
+            pair_plot_img = Image.open(pair_plot_path)
+        except:
+            artist = 'Artist Error'
+            pair_plot_img = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
         return artist, artist_img, dist_plot_img, dist_plot_img2, pair_plot_img
     return 'Waiting...', None, None, None, None

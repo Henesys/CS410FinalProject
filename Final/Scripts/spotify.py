@@ -145,6 +145,9 @@ def get_artist_face(artist_name):
 
         else:
             print(f'Artist "{artist_name}" does not have an image of their face.')
+            image = Image.open(os.path.join(dir, './Figures/default_img.jpg'))
+            image_path = os.path.join(dir, './../Artists/Images/' + artist_name + '_image.jpg')
+            image.save(image_path)
 
     else:
         print(f'Artist "{artist_name}" not found.')
@@ -176,7 +179,10 @@ def create_distribution_plot(df, column, color, title, artist_name):
 
     plt.savefig(dist_plot_path)
 
-    im = Image.open(dist_plot_path)
+    try:
+        im = Image.open(dist_plot_path)
+    except:
+        im = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
     return im
 
@@ -189,6 +195,9 @@ def create_pairplot(df, artist_name):
 
     plt.savefig(pair_plot_path)
 
-    im = Image.open(pair_plot_path)
+    try:
+        im = Image.open(pair_plot_path)
+    except:
+        im = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
     return im
