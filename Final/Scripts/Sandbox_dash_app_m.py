@@ -485,8 +485,8 @@ def display_page(pathname):
 @callback(
     [
         Output("artist_img", "src"),
-        Output("distribution_plot", "figure"),
-        Output("pair_plot", "figure"),
+        Output("distribution_plot", "src"),
+        Output("pair_plot", "src"),
     ],
     [
         Input("url", "pathname"),
