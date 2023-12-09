@@ -162,7 +162,7 @@ Create Distribution Plot
 
 
 # 상
-def create_distribution_plot(df, column, color, title):
+def create_distribution_plot(df, column, color, title, artist_name):
     # Error with df?
     if len(df) == 0:
         return "Empty DataFrame"
@@ -171,7 +171,7 @@ def create_distribution_plot(df, column, color, title):
     plot = sns.histplot(df[column], kde=True, color=color)
     plot.set_title(title)
 
-    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_dfigure.png")
+    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist_name + "_dfigure.png")
 
     plt.savefig(dist_plot_path)
 
@@ -180,11 +180,11 @@ def create_distribution_plot(df, column, color, title):
     return im
 
 
-def create_pairplot(df):
+def create_pairplot(df, artist_name):
     plt.figure(figsize=(20, 10))
     plot = sns.pairplot(df)
 
-    pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
+    pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist_name + "_pfigure.png")
 
     plt.savefig(pair_plot_path)
 
