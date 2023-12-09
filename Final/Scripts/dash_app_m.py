@@ -42,6 +42,7 @@ image_style = {"height": "auto", "width": "100%"}
 app = Dash(external_stylesheets=[dbc.themes.MINTY])
 default_color = default_color = "rgb(121, 41, 82)"
 spt_img = Image.open(os.path.join(dir, "./Figures/spotify.png"))
+gns_img = Image.open(os.path.join(dir, "./Figures/genius.png"))
 
 artist_input = html.Div(
     [
@@ -78,11 +79,49 @@ form = dbc.Form([artist_input])
 tab1_content = dbc.Card(
     dbc.CardBody(
         [
-            html.P("artist image here? / maybe songs list considered if relevant", className="card-text"),
-            html.Img(
-                        id="artist_img",
-                        style={"height": "auto", "width": "90%"},
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Img(
+                                id="artist_img",
+                                style={"height": "auto", "width": "100%"},
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
                     ),
+                    dbc.Col(
+                        [
+                            html.Center(html.H1([dbc.Badge("Who's That Artist?", className="ms-1", color="danger")])),
+                            html.Br(),
+                            dbc.Row(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardHeader("Providing Search Results for:"),
+                                            dbc.CardBody(
+                                                [
+                                                    html.H1(id="artist1", className="card-title"),
+                                                ]
+                                            ),
+                                        ],
+                                        style={"textAlign": "center", "width": "75%"},
+                                    ),
+                                ],
+                                justify="center",
+                            ),
+                            html.Br(),
+                            html.Br(),
+                            html.H3("CS410 Course Project"),
+                            html.H3("Fall 2023"),
+                        ],
+                        align="center",
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
+            )
         ]
     ),
     className="mt-3",
@@ -253,19 +292,44 @@ tab3_content = dbc.Card(
 tab4_content = dbc.Card(
     dbc.CardBody(
         [
-            html.P("Tab 4", className="card-text"),
-        
-            html.Img(
-                id="distribution_plot",
-                style={"height": "auto", "width": "90%"},
+            html.Center(html.H3([dbc.Badge("Distributions", className="ms-1", color="info")])),
+
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Center(html.H3([dbc.Badge("Danceability", className="ms-1", color="light")])),
+                            html.Img(
+                                id="distribution_plot",
+                                style={"height": "auto", "width": "100%"},
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.Center(html.H3([dbc.Badge("Energy", className="ms-1", color="light")])),
+                            html.Img(
+                                id="distribution_plot2",
+                                style={"height": "auto", "width": "100%"},
+                            ),
+                        ],
+                        style={"textAlign": "center"},
+                        width=6,
+                    ),
+                ]
             ),
 
+            html.Br(),
+            html.Center(html.H3([dbc.Badge("Pair Plots", className="ms-1", color="info")])),
             html.Img(
                 id="pair_plot",
                 style={"height": "auto", "width": "90%"},
             ),
         ]
     ),
+    style={"textAlign": "center"},
     className="mt-3",
 )
 
@@ -285,7 +349,7 @@ layout_search = html.Div(
                             },
                         )
                     ),
-                    html.Img(src=spt_img, style={"height": "64px", "width": "auto"}),
+                    html.Img(src=gns_img, style={"height": "64px", "width": "auto"}),
                 ]
             ),
             className="border-0 bg-transparent",
@@ -341,8 +405,10 @@ def display_page(pathname):
 
 @callback(
     [
+        Output("artist1", "children"),
         Output("artist_img", "src"),
         Output("distribution_plot", "src"),
+        Output("distribution_plot2", "src"),
         Output("pair_plot", "src"),
     ],
         [ Input('url', 'pathname'), ]
@@ -355,14 +421,17 @@ def display_page_spotify(pathname):
         artist_img_path = os.path.join(dir, "../Artists/Images/" + artist + "_image.jpg")
         artist_img = Image.open(artist_img_path)
 
-        dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_dfigure.png")
+        dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_Danceabilityfigure.png")
         dist_plot_img = Image.open(dist_plot_path)
+
+        dist_plot_path2 = os.path.join(dir, "../Artists/Figures/" + artist + "_Energyfigure.png")
+        dist_plot_img2 = Image.open(dist_plot_path2)
 
         pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
         pair_plot_img = Image.open(pair_plot_path)
 
-        return artist_img, dist_plot_img, pair_plot_img
-    return None, None, None
+        return artist, artist_img, dist_plot_img, dist_plot_img2, pair_plot_img
+    return 'Waiting...', None, None, None, None
 
 
 @callback(
@@ -448,6 +517,7 @@ def process(query_artist, n_clicks):
     df = pd.read_csv(csv_path)
 
     create_distribution_plot(df, "Danceability", "blue", "Distribution Plot", query_artist)
+    create_distribution_plot(df, "Energy", "red", "Distribution Plot", query_artist)
     create_pairplot(df, query_artist)
 
     return (

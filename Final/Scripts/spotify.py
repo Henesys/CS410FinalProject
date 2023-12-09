@@ -171,7 +171,7 @@ def create_distribution_plot(df, column, color, title, artist_name):
     plot = sns.histplot(df[column], kde=True, color=color)
     plot.set_title(title)
 
-    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist_name + "_dfigure.png")
+    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist_name + "_" + column + "figure.png")
 
     plt.savefig(dist_plot_path)
 
