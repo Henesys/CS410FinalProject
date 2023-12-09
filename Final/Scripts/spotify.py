@@ -3,7 +3,7 @@ import spotipy
 import sys
 from spotipy.oauth2 import SpotifyClientCredentials
 
-# Analysis/ NLP
+# Analysis/NLP
 import colorama
 from colorama import Fore
 
