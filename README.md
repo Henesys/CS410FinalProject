@@ -15,11 +15,17 @@
 - [Progress Report](https://github.com/Henesys/CS410FinalProject/blob/main/ProgressReport.pdf)
 
 ## Documentation:
+
 - [Documentation](https://github.com/Henesys/CS410FinalProject/blob/main/Documentation.pdf)
 
-## Project Demo:
+## Tutorial Slides:
 
 -
+
+## Tutorial Video:
+
+- 
+
 
 ## Project Timeline:
 
