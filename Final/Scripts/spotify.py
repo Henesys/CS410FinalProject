@@ -160,6 +160,8 @@ Create Distribution Plot
 
 # Visualizations
 
+
+# 상
 def create_distribution_plot(df, column, color, title):
     # Error with df?
     if len(df) == 0:
@@ -168,26 +170,23 @@ def create_distribution_plot(df, column, color, title):
     plt.figure(figsize=(15, 10))
     plot = sns.histplot(df[column], kde=True, color=color)
     plot.set_title(title)
-    img_buf = BytesIO()
-    plt.savefig(img_buf, format="png")
-    img_buf.seek(0)
-    plt.close()  # Close plot to avoid GUI errors
-    return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}
 
+    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_dfigure.png")
 
-# def create_distribution_plot(df, column, title):
-#     if len(df) == 0:
-#         return None
+    plt.savefig(dist_plot_path)
 
-#     fig = px.histogram(df, x=column, title=title, marginal="rug")
-#     return fig
-
+    im = Image.open(dist_plot_path)
+    
+    return im
 
 def create_pairplot(df):
     plt.figure(figsize=(20, 10))
     plot = sns.pairplot(df)
-    img_buf = BytesIO()
-    plt.savefig(img_buf, format="png")
-    img_buf.seek(0)
-    plt.close()  # Close plot to avoid GUI errors
-    return f"data:image/png;base64,{base64.b64encode(img_buf.read()).decode()}"
+
+    pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
+    
+    plt.savefig(pair_plot_path)
+
+    im = Image.open(pair_plot_path)
+
+    return im

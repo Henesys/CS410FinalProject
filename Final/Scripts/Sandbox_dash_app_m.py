@@ -92,10 +92,6 @@ tab1_content = dbc.Card(
                 id="artist_img",
                 style={"height": "auto", "width": "90%"},
             ),
-            html.Img(
-                id="img1",
-                style={"height": "auto", "width": "90%"},
-            ),
         ]
     ),
     className="mt-3",
@@ -387,8 +383,16 @@ tab4_content = dbc.Card(
     dbc.CardBody(
         [
             html.P("Tab 4", className="card-text"),
-            dcc.Graph(id="distribution_plot"),
-            dbc.Button("Don't click here", color="danger"),
+        
+            html.Img(
+                id="distribution_plot",
+                style={"height": "auto", "width": "90%"},
+            ),
+
+            html.Img(
+                id="pair_plot",
+                style={"height": "auto", "width": "90%"},
+            ),
         ]
     ),
     className="mt-3",
@@ -480,29 +484,14 @@ def display_page(pathname):
 
 @callback(
     [
-        Output("img1", "src"),
         Output("artist_img", "src"),
+        Output("distribution_plot", "figure"),
+        Output("pair_plot", "figure"),
     ],
     [
         Input("url", "pathname"),
     ],
 )
-@callback(
-    [
-        Output("distribution-plot", "figure"),
-    ],
-    [Input("url", "pathname")],
-    [State("query_artist", "value")],
-)
-def display_spotify_plot(pathname, artist_name):
-    if pathname == "/result" and artist_name:
-        csv_folder = os.path.join(dir, "Final", "CSV")
-        csv_path = os.path.join(csv_folder, f"{artist_name}_info.csv")
-
-        df = pd.read_csv(csv_path)
-
-        fig = create_distribution_plot(df, "Danceability", "Distribution Plot")
-
 
 def display_page_spotify(pathname):
     if pathname == "/result":
@@ -514,11 +503,17 @@ def display_page_spotify(pathname):
         # open all of your images here
         # remember to replace one of the artist images and add to the callback (I only put two because having only one image was giving me errors)
         # using spotify.py functions (imported) and not mini_spotify.py, don't know if it makes a difference
-        artist_img_path = os.path.join(dir, "./test/" + artist + "_image.jpg")
+        artist_img_path = os.path.join(dir, "../Artists/Images/" + artist + "_image.jpg")
         artist_img = Image.open(artist_img_path)
 
-        return artist_img, artist_img
-    return None, None
+        dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_dfigure.png")
+        dist_plot_img = Image.open(dist_plot_path)
+
+        pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
+        pair_plot_img = Image.open(pair_plot_path)
+
+        return artist_img, dist_plot_img, pair_plot_img
+    return None, None, None
 
 
 @callback(
@@ -609,8 +604,17 @@ def process(query_artist, n_clicks):
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
 
+
     # add rest of spotify code here (e.g. saving the different graphs, creating/making the csv)
+    get_artist_info_csv_smaller(query_artist)
     get_artist_face(query_artist)
+
+    csv_folder = os.path.join(dir, "Final", "CSV")
+    csv_path = os.path.join(csv_folder, f"{artist_name}_info.csv")
+    df = pd.read_csv(csv_path)
+
+    create_distribution_plot(df, "Danceability", "blue", "Distribution Plot")
+    create_pairplot(df)
 
     return ("Showing Results...", None, "/result")
 
