@@ -83,10 +83,6 @@ tab1_content = dbc.Card(
                         id="artist_img",
                         style={"height": "auto", "width": "90%"},
                     ),
-            html.Img(
-                        id="img1",
-                        style={"height": "auto", "width": "90%"},
-                    ),
         ]
     ),
     className="mt-3",
@@ -257,8 +253,17 @@ tab3_content = dbc.Card(
 tab4_content = dbc.Card(
     dbc.CardBody(
         [
-            html.P("This is tab 4!", className="card-text"),
-            dbc.Button("Don't click here", color="danger"),
+            html.P("Tab 4", className="card-text"),
+        
+            html.Img(
+                id="distribution_plot",
+                style={"height": "auto", "width": "90%"},
+            ),
+
+            html.Img(
+                id="pair_plot",
+                style={"height": "auto", "width": "90%"},
+            ),
         ]
     ),
     className="mt-3",
@@ -308,7 +313,7 @@ layout_result = html.Div(
                 dbc.Tab(tab1_content, label="Artist"),
                 dbc.Tab(tab2_content, label="Lyrics: Word Usage"),
                 dbc.Tab(tab3_content, label="Lyrics: Sentiment"),
-                dbc.Tab(tab4_content, label="Musicality: (placeholder)"),
+                dbc.Tab(tab4_content, label="Audio Features"),
             ]
         ),
     ],
@@ -336,8 +341,9 @@ def display_page(pathname):
 
 @callback(
     [
-        Output("img1", "src"),
         Output("artist_img", "src"),
+        Output("distribution_plot", "src"),
+        Output("pair_plot", "src"),
     ],
         [ Input('url', 'pathname'), ]
         )
@@ -346,11 +352,17 @@ def display_page_spotify(pathname):
         with open(os.path.join(dir, './Figures/artist.txt'), encoding='utf-8') as f:
             artist = f.read().rstrip()
 
-        artist_img_path = os.path.join(dir, "./test/" + artist + "_image.jpg")
+        artist_img_path = os.path.join(dir, "../Artists/Images/" + artist + "_image.jpg")
         artist_img = Image.open(artist_img_path)
 
-        return artist_img, artist_img
-    return "test", None
+        dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_dfigure.png")
+        dist_plot_img = Image.open(dist_plot_path)
+
+        pair_plot_path = os.path.join(dir, "../Artists/Figures/" + artist + "_pfigure.png")
+        pair_plot_img = Image.open(pair_plot_path)
+
+        return artist_img, dist_plot_img, pair_plot_img
+    return None, None, None
 
 
 @callback(
@@ -428,7 +440,15 @@ def process(query_artist, n_clicks):
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
 
+    get_artist_info_csv_smaller(query_artist)
     get_artist_face(query_artist)
+
+    csv_folder = os.path.join(dir, "CSV")
+    csv_path = os.path.join(csv_folder, query_artist + "_info.csv")
+    df = pd.read_csv(csv_path)
+
+    create_distribution_plot(df, "Danceability", "blue", "Distribution Plot", query_artist)
+    create_pairplot(df, query_artist)
 
     return (
         "Showing Results...",

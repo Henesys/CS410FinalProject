@@ -607,7 +607,10 @@ def process(query_artist, n_clicks):
         polarity_verdict,
     ) = genius.process_artist_lyrics(query_artist)
 
+<<<<<<< HEAD
     # add rest of spotify code here (e.g. saving the different graphs, creating/making the csv)
+=======
+>>>>>>> 621c31a1173c0a7ad1c1035422abe03a08a4f88f
     get_artist_info_csv_smaller(query_artist)
     get_artist_face(query_artist)
 
