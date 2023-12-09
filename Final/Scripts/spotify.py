@@ -134,7 +134,8 @@ def get_artist_face(artist_name):
             # https://developer.spotify.com/documentation/web-api/reference/get-an-artist
             if response.status_code == 200:
                 image = Image.open(BytesIO(response.content))
-                image.save(f"Final/Artists/Images/{artist_name}_image.jpg")
+                image_path = os.path.join(dir, './../Artists/Images/' + artist_name + '_image.jpg')
+                image.save(image_path)
 
                 print(f'Artist\'s Name: {artist["name"]}')
                 print(f"Artist's face saved as {artist_name}_face.jpg")
