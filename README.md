@@ -2,7 +2,7 @@
 
 ## Group Members:
 
-- Marcia Dai
+- Yutong Dai
 - Chang Hun Park
 - Hyo Sup Kim
 
