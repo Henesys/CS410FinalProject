@@ -20,11 +20,12 @@
 
 ## Tutorial Slides:
 
--
+- [Slides](https://github.com/Henesys/CS410FinalProject/blob/main/Tutorial%20Presentation.pdf)
+- [Video]()
 
 ## Tutorial Video:
 
-- 
+- [Video]()
 
 
 ## Project Timeline:
