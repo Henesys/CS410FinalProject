@@ -23,10 +23,9 @@
 - [Slides](https://github.com/Henesys/CS410FinalProject/blob/main/Tutorial%20Presentation.pdf)
 - [Video](https://www.youtube.com/watch?v=dFX-uVQjTEg)
 
-## Tutorial Video:
+## Software Usage Tutorial Presentation:
 
-- [Video]()
-
+- [Video](https://www.youtube.com/watch?v=jxMnIJgF56A)
 
 ## Project Timeline:
 
