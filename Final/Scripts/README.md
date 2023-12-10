@@ -15,9 +15,8 @@ Detailed information can be found in our Documentation PDF.
 2. cd CS410FinalProject/Final/Scripts
 3. pip3 install -r requirements.txt
 4. python3 -m spacy download en_core_web_md
-5. Create credentials.py and place the credentials shown above into the document. Rename 'id', 'sec', and 'genius' as shown in our presentation video.**
+5. Create credentials.py and place the credentials shown above into the document. Rename 'id', 'sec', and 'genius' as shown in our presentation video.** Timestamp: Software Usage Tutorial Presentation 2:07
 
-Timestamp: Software Usage Tutorial Presentation 2:07
 6. python3 dash_app.py
 
 ## List of Artists
