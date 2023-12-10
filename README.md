@@ -15,11 +15,17 @@
 - [Progress Report](https://github.com/Henesys/CS410FinalProject/blob/main/ProgressReport.pdf)
 
 ## Documentation:
+
 - [Documentation](https://github.com/Henesys/CS410FinalProject/blob/main/Documentation.pdf)
 
-## Project Demo:
+## Tutorial Slides:
 
 -
+
+## Tutorial Video:
+
+- 
+
 
 ## Project Timeline:
 
@@ -28,8 +34,7 @@
 | Team Formation        | October 27th  | O      |
 | Project Proposal      | October 27th  | O      |
 | Progress Report       | November 19th | O      |
-| Peer Review 1         | November 26th | O      |
-| Code                  | December 8th  | X      |
+| Code                  | December 8th  | O      |
 | Documentation         | December 8th  | O      |
 | Tutorial Presentation | December 8th  | O      |
-| Peer Review 2         | December 15th | X      |
+| Peer Review           | December 17th | X      |

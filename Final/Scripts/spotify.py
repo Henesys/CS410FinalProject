@@ -3,7 +3,7 @@ import spotipy
 import sys
 from spotipy.oauth2 import SpotifyClientCredentials
 
-# Analysis/ NLP
+# Analysis/NLP
 import colorama
 from colorama import Fore
 
@@ -134,7 +134,8 @@ def get_artist_face(artist_name):
             # https://developer.spotify.com/documentation/web-api/reference/get-an-artist
             if response.status_code == 200:
                 image = Image.open(BytesIO(response.content))
-                image.save(f"Final/Artists/Images/{artist_name}_image.jpg")
+                image_path = os.path.join(dir, './../Artists/Images/' + artist_name + '_image.jpg')
+                image.save(image_path)
 
                 print(f'Artist\'s Name: {artist["name"]}')
                 print(f"Artist's face saved as {artist_name}_face.jpg")
@@ -144,6 +145,9 @@ def get_artist_face(artist_name):
 
         else:
             print(f'Artist "{artist_name}" does not have an image of their face.')
+            image = Image.open(os.path.join(dir, './Figures/default_img.jpg'))
+            image_path = os.path.join(dir, './../Artists/Images/' + artist_name + '_image.jpg')
+            image.save(image_path)
 
     else:
         print(f'Artist "{artist_name}" not found.')
@@ -171,11 +175,14 @@ def create_distribution_plot(df, column, color, title, artist_name):
     plot = sns.histplot(df[column], kde=True, color=color)
     plot.set_title(title)
 
-    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist_name + "_dfigure.png")
+    dist_plot_path = os.path.join(dir, "../Artists/Figures/" + artist_name + "_" + column + "figure.png")
 
     plt.savefig(dist_plot_path)
 
-    im = Image.open(dist_plot_path)
+    try:
+        im = Image.open(dist_plot_path)
+    except:
+        im = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
     return im
 
@@ -188,6 +195,9 @@ def create_pairplot(df, artist_name):
 
     plt.savefig(pair_plot_path)
 
-    im = Image.open(pair_plot_path)
+    try:
+        im = Image.open(pair_plot_path)
+    except:
+        im = Image.open(os.path.join(dir, './Figures/default_img.png'))
 
     return im

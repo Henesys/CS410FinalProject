@@ -3,17 +3,23 @@ cardigan
 exile
 Lover
 the 1
+Is It Over Now?
 august
 Look What You Made Me Do
 betty
-champagne problems
 Cruel Summer
-Is It Over Now?
+champagne problems
 Anti-Hero
 Blank Space
-my tears ricochet
+Youâ€™re Losing Me
 Style
+my tears ricochet
 End Game
+<<<<<<< HEAD
 You¡¯re Losing Me
 You Need To Calm Down
 ...Ready for It?
+=======
+tolerate it
+You Need To Calm Down
+>>>>>>> 7f6a3f3b8c8c06b99e377323ecef6eb105124a37

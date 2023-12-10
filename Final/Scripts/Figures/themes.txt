@@ -1,3 +1,7 @@
 reputation
 problem
+<<<<<<< HEAD
 dream
+=======
+mind
+>>>>>>> 7f6a3f3b8c8c06b99e377323ecef6eb105124a37
